@@ -16,7 +16,7 @@
 /* ------------------------------------------------------------------ CONFIG */
 const CONFIG = {
   // The person this gift is for. Change this to your friend's name.
-  friendName: "[ARKADAŞININ ADI]",
+  friendName: "Gözde",
 
   // The maker (you).
   fromName: "Gülheda",
