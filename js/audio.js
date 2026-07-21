@@ -1,0 +1,208 @@
+/* =============================================================================
+   audio.js — sound for Find Your Sunshine
+   -----------------------------------------------------------------------------
+   Everything here is optional and fail-safe: if the Web Audio API is missing or
+   an audio file fails to load, the site keeps working in silence.
+
+   Two layers:
+     1) A generated ambient bed (soft pad + gentle "night wind"), so the site
+        has atmosphere even with no audio files at all.
+     2) An optional music track (CONFIG.musicSrc) layered on top if you add one.
+
+   Browsers block sound until the first user gesture — so nothing starts until
+   the visitor interacts, and the sound toggle (top-right) controls it after.
+   ========================================================================== */
+
+const Sound = (() => {
+  const { CONFIG } = window.SUNSHINE;
+
+  let ctx = null;             // AudioContext
+  let master = null;          // master gain
+  let started = false;        // ambience running?
+  let enabled = false;        // user wants sound on?
+  let music = null;           // optional <audio> element
+  const nodes = [];           // keep references so we can stop cleanly
+
+  /* Create the context lazily (needs a user gesture on most browsers). */
+  function ensureContext() {
+    if (ctx) return true;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0;                 // fade in later
+      master.connect(ctx.destination);
+      return true;
+    } catch (e) {
+      console.info("Audio unavailable — continuing silently.");
+      return false;
+    }
+  }
+
+  /* A warm, slow pad built from a few detuned sine oscillators. */
+  function buildPad() {
+    const padGain = ctx.createGain();
+    padGain.gain.value = 0.06;
+    padGain.connect(master);
+
+    // A soft, consonant chord (low, unobtrusive).
+    const freqs = [110, 164.81, 220, 277.18]; // A2, E3, A3, C#4
+    freqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      osc.detune.value = (i - 1.5) * 6;       // gentle chorus
+
+      // Slow tremolo so the pad "breathes".
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.frequency.value = 0.06 + i * 0.017;
+      lfoGain.gain.value = 0.5;
+      lfo.connect(lfoGain);
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.value = 0.5;
+      lfoGain.connect(voiceGain.gain);
+
+      osc.connect(voiceGain).connect(padGain);
+      osc.start(); lfo.start();
+      nodes.push(osc, lfo);
+    });
+  }
+
+  /* "Night wind": filtered noise that slowly swells and fades. */
+  function buildWind() {
+    const bufferSize = 2 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 480;
+    filter.Q.value = 0.7;
+
+    const windGain = ctx.createGain();
+    windGain.gain.value = 0.015;
+
+    // Slowly modulate the wind volume for a living feel.
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.04;
+    lfoGain.gain.value = 0.012;
+    lfo.connect(lfoGain).connect(windGain.gain);
+
+    noise.connect(filter).connect(windGain).connect(master);
+    noise.start(); lfo.start();
+    nodes.push(noise, lfo);
+  }
+
+  /* Optional music file. */
+  function buildMusic() {
+    if (!CONFIG.musicSrc) return;
+    try {
+      music = new Audio(CONFIG.musicSrc);
+      music.loop = true;
+      music.volume = 0;
+      music.addEventListener("error", () => {
+        console.info("Music file not found — continuing with ambience only.");
+        music = null;
+      });
+    } catch (e) { music = null; }
+  }
+
+  /* Start the whole bed once (idempotent). */
+  function start() {
+    if (started) return;
+    if (!ensureContext()) return;
+    buildPad();
+    buildWind();
+    buildMusic();
+    started = true;
+  }
+
+  /* Smoothly ramp the master gain. */
+  function ramp(target, time = 1.2) {
+    if (!ctx || !master) return;
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(master.gain.value, now);
+    master.gain.linearRampToValueAtTime(target, now + time);
+  }
+
+  /* ------------------------------------------------------------- Public API */
+
+  // Turn sound on (also used for the very first gesture).
+  function on() {
+    start();
+    if (ctx && ctx.state === "suspended") ctx.resume();
+    enabled = true;
+    ramp(0.9, 1.4);
+    if (music) { music.play().catch(() => {}); fadeMusic(0.5); }
+  }
+
+  function off() {
+    enabled = false;
+    ramp(0, 0.8);
+    fadeMusic(0);
+  }
+
+  function toggle() { enabled ? off() : on(); return enabled; }
+  function isOn() { return enabled; }
+
+  function fadeMusic(target) {
+    if (!music) return;
+    const step = (target - music.volume) / 20;
+    let i = 0;
+    const t = setInterval(() => {
+      music.volume = Math.min(1, Math.max(0, music.volume + step));
+      if (++i >= 20) { music.volume = target; clearInterval(t); if (target === 0) music.pause(); }
+    }, 40);
+  }
+
+  /* A short warm chime when a memory is discovered. */
+  function chime() {
+    if (!enabled || !ensureContext()) return;
+    const now = ctx.currentTime;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+    g.connect(master || ctx.destination);
+    [880, 1174.66].forEach((f, i) => {           // A5 + D6 sparkle
+      const o = ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.value = f;
+      const og = ctx.createGain();
+      og.gain.value = i ? 0.5 : 1;
+      o.connect(og).connect(g);
+      o.start(now + i * 0.06);
+      o.stop(now + 1.2);
+    });
+  }
+
+  /* A rising swell for the sunrise. */
+  function swell() {
+    if (!enabled || !ensureContext()) return;
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(110, now);
+    o.frequency.exponentialRampToValueAtTime(220, now + 6);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.14, now + 3);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 7);
+    o.connect(g).connect(master || ctx.destination);
+    o.start(now); o.stop(now + 7.2);
+    if (music) fadeMusic(0.75);
+  }
+
+  return { on, off, toggle, isOn, chime, swell, start };
+})();
+
+window.SUNSHINE.Sound = Sound;

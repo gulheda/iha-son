@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#03050A" />
+  <title>Find Your Sunshine</title>
+  <meta name="description" content="A little light hidden in the dark — for my sunshine." />
+
+  <!-- Fonts: elegant serif for headings, clean sans for body, handwriting for notes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500&family=Caveat:wght@400;600&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="is-loading" data-scene="intro">
+
+  <!-- The lantern: a warm glow that follows the pointer / finger. -->
+  <div class="torch" id="torch" aria-hidden="true"></div>
+
+  <!-- Sound toggle — always visible, top right. -->
+  <button class="sound-toggle" id="soundToggle" type="button"
+          aria-pressed="false" aria-label="Turn sound on">
+    <span class="sound-toggle__waves" aria-hidden="true">
+      <i></i><i></i><i></i>
+    </span>
+    <span class="sound-toggle__line" aria-hidden="true"></span>
+  </button>
+
+  <!-- ============================ SCENE 0 — INTRO ========================= -->
+  <section class="scene scene--intro is-active" id="scene-intro" aria-label="Welcome">
+    <div class="intro__spark" aria-hidden="true"></div>
+    <p class="intro__line" id="introLine"></p>
+    <p class="intro__hint" id="introHint"></p>
+  </section>
+
+  <!-- ==================== SCENE 1–3 — THE DARK FIELD ===================== -->
+  <!-- Whispers + memory orbs are injected here by main.js -->
+  <main class="field" id="field" aria-label="Explore the darkness to find hidden memories">
+    <div class="field__whispers" id="whispers" aria-hidden="true"></div>
+    <div class="field__memories" id="memoriesLayer"></div>
+  </main>
+
+  <!-- The floating hint that appears after inactivity. -->
+  <p class="nudge" id="nudge" role="status" aria-live="polite"></p>
+
+  <!-- Discovery progress — seven small lights, no ordinary progress bar. -->
+  <div class="progress" id="progress" role="progressbar"
+       aria-label="Memories found" aria-valuemin="0" aria-valuenow="0"></div>
+
+  <!-- A memory, opened up close. -->
+  <div class="memory-view" id="memoryView" aria-live="polite">
+    <figure class="memory-view__figure">
+      <img class="memory-view__img" id="memoryImg" alt="" />
+      <figcaption class="memory-view__caption" id="memoryCaption"></figcaption>
+    </figure>
+  </div>
+
+  <!-- ============================ SCENE 4 — SUNRISE ====================== -->
+  <section class="scene scene--sunrise" id="scene-sunrise" aria-label="Sunrise" aria-hidden="true">
+    <div class="sunrise__sky"></div>
+    <div class="sunrise__haze"></div>
+    <div class="sunrise__sun"></div>
+    <div class="sunrise__glow"></div>
+    <div class="sunrise__lines" id="sunriseLines"></div>
+  </section>
+
+  <!-- ============================ SCENE 5 — ROSE ========================= -->
+  <section class="scene scene--rose" id="scene-rose" aria-label="The rose" aria-hidden="true">
+    <div class="rose" id="rose" aria-hidden="true">
+      <!-- An elegant rose, drawn in SVG (not a photo). -->
+      <svg viewBox="0 0 200 260" width="200" height="260" role="img"
+           aria-label="A rose slowly opening in the sunlight">
+        <defs>
+          <radialGradient id="petal" cx="50%" cy="40%" r="65%">
+            <stop offset="0%"  stop-color="#F6D889" />
+            <stop offset="55%" stop-color="#DDA7A0" />
+            <stop offset="100%" stop-color="#5B3A29" />
+          </radialGradient>
+          <linearGradient id="stem" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7d5a3a" />
+            <stop offset="100%" stop-color="#3f2a1c" />
+          </linearGradient>
+        </defs>
+        <!-- stem -->
+        <path class="rose__stem" d="M100 130 C 98 180, 102 210, 100 250"
+              fill="none" stroke="url(#stem)" stroke-width="4" stroke-linecap="round"/>
+        <!-- leaves -->
+        <path class="rose__leaf" d="M100 190 C 70 180, 55 200, 60 220 C 85 222, 100 205, 100 190 Z" fill="#4c6b3a"/>
+        <path class="rose__leaf" d="M100 205 C 130 196, 146 214, 140 234 C 115 236, 100 220, 100 205 Z" fill="#3f5c30"/>
+        <!-- outer petals -->
+        <g class="rose__bloom">
+          <path class="rose__petal" d="M100 40 C 55 45, 40 95, 70 120 C 95 100, 100 70, 100 40 Z" fill="url(#petal)"/>
+          <path class="rose__petal" d="M100 40 C 145 45, 160 95, 130 120 C 105 100, 100 70, 100 40 Z" fill="url(#petal)"/>
+          <path class="rose__petal" d="M62 118 C 48 150, 80 172, 100 156 C 92 132, 78 120, 62 118 Z" fill="url(#petal)"/>
+          <path class="rose__petal" d="M138 118 C 152 150, 120 172, 100 156 C 108 132, 122 120, 138 118 Z" fill="url(#petal)"/>
+          <!-- inner petals -->
+          <path class="rose__petal rose__petal--in" d="M100 62 C 78 70, 74 100, 100 112 C 126 100, 122 70, 100 62 Z" fill="url(#petal)"/>
+          <path class="rose__petal rose__petal--core" d="M100 80 C 88 86, 88 104, 100 110 C 112 104, 112 86, 100 80 Z" fill="#F7F1E7" opacity="0.85"/>
+        </g>
+      </svg>
+    </div>
+    <div class="rose__words" id="roseWords"></div>
+    <p class="rose__tr" id="roseTR"></p>
+    <button class="btn btn--ghost rose__next" id="toLetter" type="button"></button>
+  </section>
+
+  <!-- ============================ SCENE 6 — LETTER ======================= -->
+  <div class="letter-modal" id="letterModal" role="dialog" aria-modal="true"
+       aria-labelledby="letterHeading" aria-hidden="true">
+    <div class="letter-modal__backdrop" data-close></div>
+    <div class="letter-modal__paper" role="document">
+      <button class="letter-modal__close" id="letterClose" type="button"
+              aria-label="Close letter" data-close>&times;</button>
+      <h2 class="letter-modal__heading" id="letterHeading">A letter for you</h2>
+      <div class="letter-modal__body" id="letterBody"></div>
+      <button class="btn letter-modal__done" id="letterDone" type="button">Close</button>
+    </div>
+  </div>
+
+  <!-- ============================ SCENE 7 — FINALE ======================= -->
+  <section class="scene scene--finale" id="scene-finale" aria-label="Happy birthday" aria-hidden="true">
+    <div class="finale__photo" id="finalePhoto" aria-hidden="true"></div>
+    <div class="finale__overlay"></div>
+    <div class="finale__content">
+      <h1 class="finale__title" id="finaleTitle"></h1>
+      <p class="finale__subtitle" id="finaleSubtitle"></p>
+      <p class="finale__tr" id="finaleTR"></p>
+      <div class="finale__buttons">
+        <button class="btn" id="replayBtn" type="button">Replay our memories</button>
+        <button class="btn btn--gold" id="surpriseBtn" type="button">One last surprise</button>
+      </div>
+    </div>
+    <p class="finale__surprise" id="surpriseLine" aria-live="polite"></p>
+    <canvas class="finale__canvas" id="starCanvas" aria-hidden="true"></canvas>
+  </section>
+
+  <!-- ============================ EASTER EGGS =========================== -->
+  <!-- Little sleepy corner: click for a wink. -->
+  <button class="egg-zzz" id="eggZzz" type="button" aria-label="A little secret">zzz</button>
+  <p class="egg-toast" id="eggToast" role="status" aria-live="polite" aria-hidden="true"></p>
+
+  <!-- Scripts (order matters: content → audio → engine). -->
+  <script src="js/memories.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
