@@ -90,6 +90,23 @@ button { font-family: inherit; cursor: pointer; }
 .sound-toggle[aria-pressed="true"] .sound-toggle__waves { display: flex; }
 .sound-toggle[aria-pressed="true"] .sound-toggle__line { display: none; }
 
+/* ------------------------------------------------------------ camera button */
+.cam-btn {
+  position: fixed; z-index: 60;
+  top: max(16px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  width: 40px; height: 40px; display: grid; place-items: center;
+  color: var(--honey);
+  background: rgba(7,11,20,.5);
+  border: 1px solid rgba(246,216,137,.25);
+  border-radius: 50%; backdrop-filter: blur(6px);
+  transition: border-color .3s var(--ease), transform .3s var(--ease), opacity .5s var(--ease);
+}
+.cam-btn:hover { border-color: rgba(246,216,137,.6); transform: scale(1.05); }
+.cam-btn:focus-visible { outline: 2px solid var(--honey); outline-offset: 3px; }
+/* hidden on the intro; visible once the journey begins */
+body[data-scene="intro"] .cam-btn { opacity: 0; visibility: hidden; pointer-events: none; }
+
 /* --------------------------------------------------------------- progress */
 .progress {
   position: fixed; z-index: 40;

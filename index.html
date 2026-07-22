@@ -31,6 +31,15 @@
     <span class="sound-toggle__line" aria-hidden="true"></span>
   </button>
 
+  <!-- Camera — opens the telescope photo moment. Always reachable. -->
+  <button class="cam-btn" id="camBtn" type="button" aria-label="Kamera — bir anı yarat">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none"
+         stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/>
+      <circle cx="12" cy="13" r="3.2"/>
+    </svg>
+  </button>
+
   <!-- Discovery progress — a small row of stars, one per chapter. -->
   <div class="progress" id="progress" role="progressbar"
        aria-label="Keşfedilen anılar" aria-valuemin="0" aria-valuenow="0"></div>
@@ -97,7 +106,7 @@
     <div class="starmap__inner">
       <p class="starmap__eyebrow" id="starmapEyebrow"></p>
       <h2 class="starmap__title" id="starmapTitle"></h2>
-      <svg class="starmap__svg" id="starmapSvg" viewBox="0 0 400 440" aria-hidden="true"></svg>
+      <svg class="starmap__svg" id="starmapSvg" viewBox="0 0 600 340" aria-hidden="true"></svg>
       <p class="starmap__caption" id="starmapCaption"></p>
       <p class="starmap__close" id="starmapClose"></p>
     </div>
