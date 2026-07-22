@@ -369,14 +369,24 @@
     scene.add(m); secretMeshes.push(m);
   });
 
-  /* ------------------------------------------------- HIDDEN TELESCOPE STAR */
-  // A distinct cool-white star hides the telescope (the "one more memory").
-  const scopeMesh = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, color: 0x9fd4ff,
-    transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
-  scopeMesh.position.set(-34, 22, 42);
-  scopeMesh.scale.set(7, 7, 1);
-  scopeMesh.userData = { scope: true };
-  scene.add(scopeMesh);
+  /* --------------------------------------------------------- CAMERA PLANET */
+  // The camera lives on its own little world — a clear, tappable planet.
+  const camPivot = new THREE.Group(); camPivot.rotation.y = 2.7; scene.add(camPivot);
+  const camTilt = new THREE.Group(); camTilt.position.x = 62; camPivot.add(camTilt);
+  const camR = 1.7 * 1.7;
+  const camTex = planetTexture("#9fb4d4", "rocky");
+  const cameraMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(camR, 40, 40),
+    new THREE.MeshStandardMaterial({ map: camTex, bumpMap: camTex, bumpScale: 0.1,
+      roughness: 0.82, metalness: 0.1, emissive: new THREE.Color("#9fb4d4").multiplyScalar(0.08) }));
+  cameraMesh.userData = { camera: true, baseScale: 1 };
+  camTilt.add(cameraMesh);
+  cameraMesh.add(atmosphere("#bcd4f0", camR));
+  const camPath = new THREE.Mesh(
+    new THREE.RingGeometry(62 - 0.05, 62 + 0.05, 160),
+    new THREE.MeshBasicMaterial({ color: 0x2a3550, side: THREE.DoubleSide,
+      transparent: true, opacity: 0.26, depthWrite: false }));
+  camPath.rotation.x = Math.PI / 2; scene.add(camPath);
 
   /* -------------------------------------------------------- SHOOTING STARS */
   const shooters = [];
@@ -545,11 +555,11 @@
       updateHover(hit);
       if (!hit) {
         raycaster.setFromCamera(ndc, camera);
-        const onScope = raycaster.intersectObject(scopeMesh, false)[0];
+        const onCam = raycaster.intersectObject(cameraMesh, false)[0];
         const onSecret = secretMeshes.length && raycaster.intersectObjects(secretMeshes, false)[0];
         const onSun = raycaster.intersectObject(sunHit, false)[0];
-        el.canvas.classList.toggle("hovering", !!(onScope || onSecret || onSun));
-        if (onScope) { el.label.textContent = "Teleskop"; el.label.classList.add("show"); positionLabel(scopeMesh); }
+        el.canvas.classList.toggle("hovering", !!(onCam || onSecret || onSun));
+        if (onCam) { el.label.textContent = "Kamera"; el.label.classList.add("show"); positionLabel(cameraMesh); }
         else if (onSun) {
           el.label.textContent = state.sunUnlocked ? CONFIG.friendName : "Güneş — kilitli";
           el.label.classList.add("show"); positionLabel(sunCore);
@@ -564,8 +574,8 @@
     if (state.focused >= 0) { unfocus(); return; } // tap anywhere outside the panel → back to orbit
     if (state.scene === "travel") {
       raycaster.setFromCamera(ndc, camera);
-      // telescope star, then hidden stars, then planets, then the sun
-      if (raycaster.intersectObject(scopeMesh, false)[0]) { openTelescope(); return; }
+      // camera planet, then hidden worlds, then chapter planets, then the sun
+      if (raycaster.intersectObject(cameraMesh, false)[0]) { openTelescope(); return; }
       if (secretMeshes.length) {
         const sHit = raycaster.intersectObjects(secretMeshes, false)[0];
         if (sHit) { revealSecret(sHit.object.userData.secret, sHit.object); return; }
@@ -592,7 +602,7 @@
       el.canvas.classList.add("hovering");
       if (hit.userData.index != null) {
         planetMeshes[idx].userData.baseScale = 1.18;
-        el.label.textContent = PLANETS[idx].name;
+        el.label.textContent = (state.discovered.has(idx) ? "✓ " : "") + PLANETS[idx].name;
       } else { el.label.textContent = CONFIG.friendName; }
       el.label.classList.add("show");
       positionLabel(hit);
@@ -781,6 +791,7 @@
     el.progress.style.opacity = "0";
     body.dataset.scene = "finale";
     Sound && Sound.swell();
+    Sound && Sound.toFinaleTrack && Sound.toFinaleTrack();   // switch to the finale song
     // brighten everything toward dawn
     tween(renderer, { toneMappingExposure: 1.7 }, 4);
     tween(sunLight, { intensity: 6 }, 4);
@@ -789,7 +800,6 @@
     // clear the sky so the screen becomes pure light
     [starsFar, starsNear, starsBloom, belt].forEach((o) => tween(o.material, { opacity: 0 }, 3));
     nebulas.forEach((n) => tween(n.material, { opacity: 0 }, 3));
-    if (scopeMesh) tween(scopeMesh.material, { opacity: 0 }, 2);
     setTimeout(startFinale, 3600);
   }
 
@@ -960,8 +970,10 @@
     ctx.restore();
     drawFrameArt(ctx, size);
     el.telescope.classList.add("captured");
+    el.telescopeAsk.textContent = "İyi ki doğdun 💛";
     scopeActions([[CONFIG.telescopeSave, savePhoto, true], [CONFIG.telescopeAgain, retryShot, false]]);
     confettiBurst();          // golden confetti after the shot
+    if (Sound && Sound.toFinaleTrack) Sound.toFinaleTrack();   // Ebru Yaşar moment
   }
   function drawFrameArt(ctx, size) {
     const g = ctx.createRadialGradient(size/2, size/2, size*0.28, size/2, size/2, size*0.55);
@@ -975,6 +987,8 @@
       ctx.beginPath(); ctx.arc(size/2 + Math.cos(a)*r, size/2 + Math.sin(a)*r, Math.random()*1.6 + 0.4, 0, Math.PI*2); ctx.fill();
     }
     ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,246,222,0.97)"; ctx.font = "600 32px Georgia, serif";
+    ctx.fillText("İyi ki doğdun", size/2, 62);
     ctx.fillStyle = "rgba(255,246,222,0.96)"; ctx.font = "600 30px Georgia, serif";
     ctx.fillText(CONFIG.fromName + " & " + CONFIG.friendName, size/2, size - 58);
     ctx.fillStyle = "rgba(246,216,137,0.9)"; ctx.font = "300 17px system-ui, sans-serif";
@@ -1051,13 +1065,21 @@
     // orbital motion
     if (!state.orbitsFrozen) {
       PLANETS.forEach((p) => { p._pivot.rotation.y += p.speed * dt; p._mesh.rotation.y += dt*0.3; });
+      camPivot.rotation.y += 0.02 * dt; cameraMesh.rotation.y += dt * 0.3;
     }
-    // planet hover scale easing
+    // planet scale: unvisited gently pulse to invite; visited rest a touch smaller
     planetMeshes.forEach((m) => {
-      const t = m.userData.baseScale;
+      const visited = state.discovered.has(m.userData.index);
+      const pulse = visited ? 1 : 1 + Math.sin(state.time * 1.8 + m.userData.index) * 0.05;
+      const t = m.userData.baseScale * (visited ? 0.82 : 1) * pulse;
       m.scale.x += (t - m.scale.x) * Math.min(1, dt*8);
       m.scale.y = m.scale.z = m.scale.x;
     });
+    { // camera planet gentle pulse
+      const t = cameraMesh.userData.baseScale * (1 + Math.sin(state.time * 1.8 + 9) * 0.05);
+      cameraMesh.scale.x += (t - cameraMesh.scale.x) * Math.min(1, dt*8);
+      cameraMesh.scale.y = cameraMesh.scale.z = cameraMesh.scale.x;
+    }
     // sun shimmer
     const pl = 1 + Math.sin(state.time * 1.3) * 0.03;
     sunGlows.forEach((g, i) => { const s0 = [16,30,54][i] * (state.sunUnlocked?1.5:1); g.scale.set(s0*pl, s0*pl, 1); });
@@ -1073,11 +1095,6 @@
     for (const m of secretMeshes) {
       m.rotation.y += dt * (m.userData.spin || 0.3);
       if (!m.userData.found) { const s = 1 + Math.sin(state.time * 2 + m.position.x) * 0.06; m.scale.set(s, s, s); }
-    }
-    // telescope star pulse
-    if (scopeMesh.material.opacity > 0.01) {
-      const ss = 7 * (1 + Math.sin(state.time * 1.6) * 0.18);
-      scopeMesh.scale.set(ss, ss, 1);
     }
 
     if (hovered >= 0 && state.focused < 0) positionLabel(planetMeshes[hovered]);
@@ -1152,7 +1169,7 @@
     window.__u = {
       start, focusPlanet, unfocus, beginFinale, state, PLANETS,
       spawnShooter, revealSecret, secretMeshes, shooters,
-      openTelescope, showStarmap, scopeMesh,
+      openTelescope, showStarmap, cameraMesh,
       discoverAll() {
         PLANETS.forEach((_, i) => state.discovered.add(i));
         updateProgress(); evolve(); unlockSun();

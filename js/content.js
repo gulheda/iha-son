@@ -35,8 +35,8 @@ const CONFIG = {
   wishPrompt:   "Evrene bir dilek gönder",
   wishPlaceholder: "Buraya bir dilek yaz...",
   wishSend:     "Evrene gönder",
-  birthdayTitle: "İyi ki doğdun.",
-  birthdaySub:   "Evrenimdeki en parlak yıldız olduğun için teşekkür ederim.",
+  birthdayTitle: "Doğum günün kutlu olsun, aşk bahçem.",
+  birthdaySub:   "Dost kelimesinin en güzel varlığı, dayanağım, güç kaynağım — senin hep yanındayım.",
 
   // Closing star map (a constellation named for your friend)
   starmapEyebrow: "GÖKYÜZÜNDE, SENİN İÇİN",
@@ -55,7 +55,11 @@ const CONFIG = {
   sunPhoto: "assets/images/photo-5.webp",
   sunPhotoAlt: "Gözde",
 
-  musicSrc: "",   // optional: "assets/audio/song.mp3"
+  // Music (optional — add your own files to assets/audio/ and set the paths).
+  //  musicSrc       → plays through the journey  (e.g. "La Vie en Rose")
+  //  finaleMusicSrc → plays at the finale/camera (e.g. Ebru Yaşar - Seviyorum Seni)
+  musicSrc:       "",   // e.g. "assets/audio/la-vie-en-rose.mp3"
+  finaleMusicSrc: "",   // e.g. "assets/audio/seviyorum-seni.mp3"
 };
 
 /* --------------------------------------------------------------- CHAPTERS
@@ -75,7 +79,7 @@ const PLANETS = [
     kind: "photo",
     photo: "assets/images/photo-1.png",
     alt:  "İkimiz bir kafede.",
-    text: "Her şeyin başladığı gün. En sıradan anlar bile, sen yanımda olduğun için anıya dönüştü.",
+    text: "İyi ki!!! Seviyoruuum. Merkez yıldızım, güneşim, ayım. 💛",
   },
   {
     key: "laughter",
@@ -85,7 +89,7 @@ const PLANETS = [
     kind: "photo",
     photo: "assets/images/photo-2.png",
     alt:  "Dışarıda, güneşli bir günde ikimiz.",
-    text: "Seninle gülmek en sevdiğim ses. Dışarıda, güneşin altında, her şey hep biraz daha aydınlıktı.",
+    text: "Sen her şeyin en güzelini hak ediyorsun.",
   },
   {
     key: "flowers",
@@ -95,7 +99,7 @@ const PLANETS = [
     kind: "photo",
     photo: "assets/images/photo-3.webp",
     alt:  "Aynada, elimizde küçük pembe çiçeklerle ikimiz.",
-    text: "Sen bana çiçek verdin. Sonra da benim güneşim oldun.",
+    text: "Ömrümmm Gözdemmm, iyi ki sen. Her anım, iyi ki varsın.",
   },
   {
     key: "home",
@@ -109,37 +113,34 @@ const PLANETS = [
   },
   {
     key: "dreams",
-    name: "Hayaller",
+    name: "Evrenim",
     color: "#6E57A6", style: "gas",
     size: 1.15, orbit: 45, speed: 0.034, phase: 4.7,
     kind: "text",
-    text: "Birlikte yapacağımız o kadar çok şey var. Gezmek, birlikte büyümek, yıllar sonra bu geceyi gülümseyerek anmak. Önümüzde koca bir evren var.",
+    text: "Bu koskoca galakside milyarlarca yıldız var. Ama benim evrenimi aydınlatan tek bir güneş var: sensin. Işığın hiç sönmesin, hep parlasın. Ben de o ışığın altında, her zaman senin yanında olacağım. İyi ki varsın. Seni çok seviyorum.",
   },
   {
     key: "letter",
-    name: "Mektup",
+    name: "Aşkıma",
     color: "#D9A23E", style: "gas", ring: true,
     size: 1.2, orbit: 54, speed: 0.026, phase: 5.9,
     kind: "letter",
-    text: "Sana yazdığım bir mektup var. Açmak için dokun.",
+    text: "Sana yazdıklarım var. Açmak için dokun.",
   },
 ];
 
 /* ------------------------------------------------------------------ LETTER */
 const LETTER = [
-  "Canım güneşim,",
+  "Aşkım,",
   "",
-  "Sen bana hep gülüm dedin. Belki de bu yüzden sana verebileceğim en doğru isim güneşim.",
-  "Çünkü ben hayatımda ne zaman yorulsam, kararsam veya kendimi eksik hissetsem, sen her şeyi biraz daha sıcak, biraz daha kolay hâle getirdin.",
+  "İyi günümde de, kötü günümde de, saçma sapan kahkahalar attığımız anlarda da, hiçbir şey konuşmadan yan yana oturduğumuz zamanlarda da... Hep vardın.",
   "",
-  "Seninle geçirdiğim sıradan bir gün bile, sonradan hatırlamak isteyeceğim bir anıya dönüşüyor.",
-  "Bazen birlikte çok gülüyoruz. Bazen sadece yan yana oturuyoruz. Bazen de yol boyunca uyuyorsun. Ama bütün o anların içinde benim için değişmeyen tek bir şey var: İyi ki yanımdasın.",
+  "Bunun ne kadar kıymetli olduğunu sana anlatabilecek doğru kelimeleri bulamıyorum. Ama şunu biliyorum; sen olmasaydın hayatım eksik olurdu.",
   "",
-  "Bana kendimi değerli hissettirdiğin, her hâlimi sevdiğin ve hayatıma ışık olduğun için teşekkür ederim.",
-  "Sen benim sadece en yakın arkadaşım değilsin. Ev gibi hissettiren, karanlıkta yönümü bulmamı sağlayan ve iyi ki dediğim en güzel insanlardan birisin.",
+  "Umarım yıllar geçse de yine birlikte güleriz, yine yeni anılar biriktiririz. Çünkü benim en sevdiğim anılar, içinde sen olanlar.",
   "",
-  "İyi ki doğdun.",
-  "İyi ki hayatıma doğdun.",
+  "İyi ki doğdun aşkımmm.",
+  "İyi ki varsın güneşimmmm.",
   "Seni çok seviyorum.",
 ];
 

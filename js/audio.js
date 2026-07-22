@@ -20,7 +20,9 @@ const Sound = (() => {
   let master = null;          // master gain
   let started = false;        // ambience running?
   let enabled = false;        // user wants sound on?
-  let music = null;           // optional <audio> element
+  let music = null;           // main track (e.g. La Vie en Rose)
+  let finaleMusic = null;     // finale track (e.g. Ebru Yaşar)
+  let onFinaleTrack = false;
   const nodes = [];           // keep references so we can stop cleanly
 
   /* Create the context lazily (needs a user gesture on most browsers). */
@@ -101,19 +103,38 @@ const Sound = (() => {
     nodes.push(noise, lfo);
   }
 
-  /* Optional music file. */
-  function buildMusic() {
-    if (!CONFIG.musicSrc) return;
+  /* Optional music files: a main track and a finale track. */
+  function makeTrack(src) {
+    if (!src) return null;
     try {
-      music = new Audio(CONFIG.musicSrc);
-      music.loop = true;
-      music.volume = 0;
-      music.addEventListener("error", () => {
-        console.info("Music file not found — continuing with ambience only.");
-        music = null;
-      });
-    } catch (e) { music = null; }
+      const a = new Audio(src);
+      a.loop = true; a.volume = 0;
+      a.addEventListener("error", () => console.info("Music file not found: " + src));
+      return a;
+    } catch (e) { return null; }
   }
+  function buildMusic() {
+    music = makeTrack(CONFIG.musicSrc);
+    finaleMusic = makeTrack(CONFIG.finaleMusicSrc);
+  }
+  // Fade any <audio> element's volume smoothly.
+  function fadeEl(a, target, steps = 24, ms = 60) {
+    if (!a) return;
+    const step = (target - a.volume) / steps; let i = 0;
+    const t = setInterval(() => {
+      a.volume = Math.min(1, Math.max(0, a.volume + step));
+      if (++i >= steps) { a.volume = target; clearInterval(t); if (target === 0) a.pause(); }
+    }, ms);
+  }
+  // Cross-fade from the main track to the finale track (Ebru Yaşar moment).
+  function toFinaleTrack() {
+    if (onFinaleTrack) return;
+    onFinaleTrack = true;
+    if (!enabled) return;
+    if (music) fadeEl(music, 0);
+    if (finaleMusic) { finaleMusic.play().catch(() => {}); fadeEl(finaleMusic, 0.8); }
+  }
+  function activeTrack() { return onFinaleTrack ? finaleMusic : music; }
 
   /* Start the whole bed once (idempotent). */
   function start() {
@@ -171,27 +192,19 @@ const Sound = (() => {
     if (ctx && ctx.state === "suspended") ctx.resume();
     enabled = true;
     ramp(0.9, 1.4);
-    if (music) { music.play().catch(() => {}); fadeMusic(0.5); }
+    const tr = activeTrack();
+    if (tr) { tr.play().catch(() => {}); fadeEl(tr, onFinaleTrack ? 0.8 : 0.6); }
   }
 
   function off() {
     enabled = false;
     ramp(0, 0.8);
-    fadeMusic(0);
+    if (music) fadeEl(music, 0);
+    if (finaleMusic) fadeEl(finaleMusic, 0);
   }
 
   function toggle() { enabled ? off() : on(); return enabled; }
   function isOn() { return enabled; }
-
-  function fadeMusic(target) {
-    if (!music) return;
-    const step = (target - music.volume) / 20;
-    let i = 0;
-    const t = setInterval(() => {
-      music.volume = Math.min(1, Math.max(0, music.volume + step));
-      if (++i >= 20) { music.volume = target; clearInterval(t); if (target === 0) music.pause(); }
-    }, 40);
-  }
 
   /* A short warm chime when a memory is discovered. */
   function chime() {
@@ -228,10 +241,11 @@ const Sound = (() => {
     g.gain.exponentialRampToValueAtTime(0.0001, now + 7);
     o.connect(g).connect(master || ctx.destination);
     o.start(now); o.stop(now + 7.2);
-    if (music) fadeMusic(0.75);
+    const tr = activeTrack();
+    if (tr && enabled) fadeEl(tr, onFinaleTrack ? 0.85 : 0.75);
   }
 
-  return { on, off, toggle, isOn, chime, swell, start };
+  return { on, off, toggle, isOn, chime, swell, start, toFinaleTrack };
 })();
 
 window.SUNSHINE.Sound = Sound;
