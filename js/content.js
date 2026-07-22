@@ -19,6 +19,9 @@ const CONFIG = {
   // Shown while travelling, before anything is discovered
   travelHint: "Bir gezegene dokun",
 
+  // Shown when the sun is tapped before every planet is found
+  sunLocked: "Güneşe ulaşmak için önce tüm gezegenleri keşfet",
+
   // The final reveal, line by line (the heart of the whole site)
   finaleLines: [
     "Sen bana hep gülüm dedin.",

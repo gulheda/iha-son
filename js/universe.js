@@ -279,6 +279,13 @@
     s.scale.set(sc, sc, 1); sunGroup.add(s); sunGlows.push(s);
   });
   sunCore.userData.isSun = true;
+  // A generous invisible hit-sphere so the sun is easy to tap (raycastable
+  // but never drawn). Checked AFTER planets, so inner planets stay clickable.
+  const sunHit = new THREE.Mesh(
+    new THREE.SphereGeometry(13, 16, 16),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+  sunHit.userData.isSun = true;
+  sunGroup.add(sunHit);
 
   /* ------------------------------------------------------------- PLANETS */
   const planetMeshes = [];
@@ -403,14 +410,8 @@
 
   /* ---------------------------------------------------- secret reveal + petals */
   let secretTimer = null;
-  function revealSecret(i, sprite) {
-    if (!sprite.userData.found) {
-      sprite.userData.found = true;
-      sprite.material.color.set(0xffe6b0);
-      tween(sprite.scale, { x: 8, y: 8 }, 0.6, easeOut);
-      Sound && Sound.chime();
-    }
-    el.secretToast.textContent = SECRETS[i].text;
+  function toast(text) {
+    el.secretToast.textContent = text;
     el.secretToast.classList.add("show");
     el.secretToast.setAttribute("aria-hidden", "false");
     clearTimeout(secretTimer);
@@ -418,6 +419,15 @@
       el.secretToast.classList.remove("show");
       el.secretToast.setAttribute("aria-hidden", "true");
     }, 4500);
+  }
+  function revealSecret(i, sprite) {
+    if (!sprite.userData.found) {
+      sprite.userData.found = true;
+      sprite.material.color.set(0xffe6b0);
+      tween(sprite.scale, { x: 8, y: 8 }, 0.6, easeOut);
+      Sound && Sound.chime();
+    }
+    toast(SECRETS[i].text);
   }
   function spawnPetals() {
     if (prefersReduced) return;
@@ -479,9 +489,7 @@
 
   function pickPlanet() {
     raycaster.setFromCamera(ndc, camera);
-    const targets = planetMeshes.slice();
-    if (state.sunUnlocked) targets.push(sunCore);
-    const hits = raycaster.intersectObjects(targets, false);
+    const hits = raycaster.intersectObjects(planetMeshes, false);
     return hits.length ? hits[0].object : null;
   }
 
@@ -513,8 +521,13 @@
         raycaster.setFromCamera(ndc, camera);
         const onScope = raycaster.intersectObject(scopeMesh, false)[0];
         const onSecret = secretMeshes.length && raycaster.intersectObjects(secretMeshes, false)[0];
-        if (onScope || onSecret) el.canvas.classList.add("hovering");
+        const onSun = raycaster.intersectObject(sunHit, false)[0];
+        el.canvas.classList.toggle("hovering", !!(onScope || onSecret || onSun));
         if (onScope) { el.label.textContent = "Teleskop"; el.label.classList.add("show"); positionLabel(scopeMesh); }
+        else if (onSun) {
+          el.label.textContent = state.sunUnlocked ? CONFIG.friendName : "Güneş — kilitli";
+          el.label.classList.add("show"); positionLabel(sunCore);
+        } else el.label.classList.remove("show");
       }
     }
   }
@@ -525,16 +538,20 @@
     if (state.focused >= 0) { unfocus(); return; } // tap anywhere outside the panel → back to orbit
     if (state.scene === "travel") {
       raycaster.setFromCamera(ndc, camera);
-      // the telescope star, then hidden stars, then planets
+      // telescope star, then hidden stars, then planets, then the sun
       if (raycaster.intersectObject(scopeMesh, false)[0]) { openTelescope(); return; }
       if (secretMeshes.length) {
         const sHit = raycaster.intersectObjects(secretMeshes, false)[0];
         if (sHit) { revealSecret(sHit.object.userData.secret, sHit.object); return; }
       }
       const hit = pickPlanet();
-      if (hit) {
-        if (hit.userData.isSun && state.sunUnlocked) beginFinale();
-        else if (hit.userData.index != null) focusPlanet(hit.userData.index);
+      if (hit && hit.userData.index != null) { focusPlanet(hit.userData.index); return; }
+      if (raycaster.intersectObject(sunHit, false)[0]) {
+        if (state.sunUnlocked) beginFinale();
+        else {
+          const left = state.total - state.discovered.size;
+          toast(CONFIG.sunLocked + " (" + left + " kaldı)");
+        }
       }
     }
   }
