@@ -125,7 +125,7 @@
   camera.position.set(0, 20, 150);
 
   /* --------------------------------------------------------------- lights */
-  const ambient = new THREE.AmbientLight(0x223047, 0.5);
+  const ambient = new THREE.AmbientLight(0x2a3a55, 0.32);
   scene.add(ambient);
   const sunLight = new THREE.PointLight(0xffdca8, 2.2, 0, 1.4);
   scene.add(sunLight);
@@ -145,6 +145,70 @@
   const starTex  = radialTexture([[0,"rgba(255,255,255,1)"],[0.25,"rgba(255,248,224,0.9)"],[0.55,"rgba(255,235,190,0.25)"],[1,"rgba(0,0,0,0)"]]);
   const glowTex  = radialTexture([[0,"rgba(255,244,214,1)"],[0.35,"rgba(246,216,137,0.7)"],[0.7,"rgba(232,176,74,0.18)"],[1,"rgba(0,0,0,0)"]]);
   const softTex  = radialTexture([[0,"rgba(255,255,255,0.9)"],[0.5,"rgba(255,255,255,0.25)"],[1,"rgba(255,255,255,0)"]]);
+
+  /* ---------------------------------------------- procedural planet worlds */
+  function css255(col, a){ return "rgba("+((col.r*255)|0)+","+((col.g*255)|0)+","+((col.b*255)|0)+","+a+")"; }
+  // A surface texture so planets look like worlds, not flat toy balls.
+  function planetTexture(hex, style) {
+    const w = 512, h = 256;
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    const base  = new THREE.Color(hex);
+    const light = base.clone().lerp(new THREE.Color(0xffffff), 0.4);
+    const dark  = base.clone().multiplyScalar(0.45);
+    ctx.fillStyle = css255(base.clone().multiplyScalar(0.82), 1); ctx.fillRect(0, 0, w, h);
+    if (style === "gas") {
+      // soft horizontal bands, like a gas giant
+      for (let i = 0; i < 30; i++) {
+        const y = Math.random()*h, bh = 3 + Math.random()*14;
+        ctx.fillStyle = css255(Math.random() < 0.5 ? light : dark, 0.1 + Math.random()*0.16);
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 8) { const yy = y + Math.sin(x/w*Math.PI*4 + i)*2.5; x ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy); }
+        ctx.lineTo(w, y+bh); ctx.lineTo(0, y+bh); ctx.closePath(); ctx.fill();
+      }
+    } else {
+      // marbled continents, like a rocky world
+      for (let i = 0; i < 200; i++) {
+        const x = Math.random()*w, y = Math.random()*h, r = 5 + Math.random()*38;
+        const col = Math.random() < 0.5 ? light : dark;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, css255(col, 0.14 + Math.random()*0.12)); g.addColorStop(1, css255(col, 0));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    const pg = ctx.createLinearGradient(0, 0, 0, h);   // darken the poles
+    pg.addColorStop(0,"rgba(0,0,0,0.28)"); pg.addColorStop(0.5,"rgba(0,0,0,0)"); pg.addColorStop(1,"rgba(0,0,0,0.28)");
+    ctx.fillStyle = pg; ctx.fillRect(0, 0, w, h);
+    const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
+  }
+  // A thin banded ring for the ringed planets.
+  function ringTexture(hex) {
+    const w = 256, h = 8;
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    const base = new THREE.Color(hex).lerp(new THREE.Color(0xffffff), 0.35);
+    for (let x = 0; x < w; x++) {
+      const edge = (x/w > 0.06 && x/w < 0.98) ? 1 : 0.15;
+      const a = (0.12 + 0.5*Math.abs(Math.sin(x*0.4))) * edge;
+      ctx.fillStyle = css255(base, a*0.7); ctx.fillRect(x, 0, 1, h);
+    }
+    const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
+  }
+  // A view-space fresnel shell → a realistic atmospheric rim glow.
+  function atmosphere(hex, radius) {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { glowColor: { value: new THREE.Color(hex) }, p: { value: 3.4 }, cc: { value: 0.55 } },
+      vertexShader:
+        "varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal);" +
+        " gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+      fragmentShader:
+        "uniform vec3 glowColor; uniform float p; uniform float cc; varying vec3 vN;" +
+        " void main(){ float i = pow(cc - dot(vN, vec3(0.0,0.0,1.0)), p);" +
+        " i = clamp(i, 0.0, 1.0); gl_FragColor = vec4(glowColor, i); }",
+      side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+    });
+    return new THREE.Mesh(new THREE.SphereGeometry(radius*1.22, 32, 32), mat);
+  }
 
   /* ------------------------------------------------------------ STARFIELD */
   const coarse = window.matchMedia("(pointer: coarse)").matches;
@@ -213,29 +277,39 @@
     pivot.rotation.y = p.phase || 0;
     scene.add(pivot);
 
+    // orbit position + a gentle axial tilt for character
+    const tilt = new THREE.Group();
+    tilt.position.x = p.orbit;
+    tilt.rotation.z = (i % 2 ? 1 : -1) * (0.12 + (i * 0.05));
+    pivot.add(tilt);
+
+    const R = p.size * 1.7;
+    const tex = planetTexture(p.color, p.style || "rocky");
     const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(p.size * 1.6, 40, 40),
+      new THREE.SphereGeometry(R, 48, 48),
       new THREE.MeshStandardMaterial({
-        color: new THREE.Color(p.color), roughness: 0.72, metalness: 0.05,
-        emissive: new THREE.Color(p.color).multiplyScalar(0.12) }));
-    mesh.position.x = p.orbit;
+        map: tex, bumpMap: tex, bumpScale: 0.12,
+        roughness: 0.94, metalness: 0.0,
+        emissive: new THREE.Color(p.color).multiplyScalar(0.03) }));
     mesh.userData = { index: i, planet: p, baseScale: 1 };
-    pivot.add(mesh);
+    tilt.add(mesh);
+    mesh.add(atmosphere(p.color, R));               // realistic rim glow
 
-    // soft atmosphere halo
-    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex,
-      color: new THREE.Color(p.color), transparent: true, opacity: 0.5,
-      blending: THREE.AdditiveBlending, depthWrite: false }));
-    const hs = p.size * 6.4; halo.scale.set(hs, hs, 1);
-    mesh.add(halo);
-    mesh.userData.halo = halo;
+    if (p.ring) {                                    // an elegant planetary ring
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(R * 1.5, R * 2.4, 96),
+        new THREE.MeshBasicMaterial({ map: ringTexture(p.color), side: THREE.DoubleSide,
+          transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }));
+      ring.rotation.x = Math.PI * 0.5 - 0.35;
+      mesh.add(ring);
+    }
 
-    // faint orbit ring
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(p.orbit - 0.06, p.orbit + 0.06, 128),
+    // faint orbit path on the ecliptic
+    const path = new THREE.Mesh(
+      new THREE.RingGeometry(p.orbit - 0.05, p.orbit + 0.05, 160),
       new THREE.MeshBasicMaterial({ color: 0x2a3550, side: THREE.DoubleSide,
-        transparent: true, opacity: 0.35, depthWrite: false }));
-    ring.rotation.x = Math.PI / 2; scene.add(ring);
+        transparent: true, opacity: 0.26, depthWrite: false }));
+    path.rotation.x = Math.PI / 2; scene.add(path);
 
     planetMeshes.push(mesh);
     PLANETS[i]._pivot = pivot; PLANETS[i]._mesh = mesh;
@@ -320,7 +394,9 @@
   function onUp(e) {
     if (!state.dragging) return;
     state.dragging = false; el.canvas.classList.remove("grabbing");
-    if (!state.moved && state.scene === "travel" && state.focused < 0) {
+    if (state.moved) return;                       // a drag, not a tap
+    if (state.focused >= 0) { unfocus(); return; } // tap anywhere outside the panel → back to orbit
+    if (state.scene === "travel") {
       const hit = pickPlanet();
       if (hit) {
         if (hit.userData.isSun && state.sunUnlocked) beginFinale();

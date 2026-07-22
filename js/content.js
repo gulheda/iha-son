@@ -54,7 +54,7 @@ const PLANETS = [
   {
     key: "beginning",
     name: "Başlangıç",
-    color: "#E8853A",
+    color: "#C46B2E", style: "rocky",
     size: 1.05, orbit: 15, speed: 0.10, phase: 0.2,
     kind: "photo",
     photo: "assets/images/photo-1.png",
@@ -64,7 +64,7 @@ const PLANETS = [
   {
     key: "laughter",
     name: "Kahkaha",
-    color: "#5AA6C7",
+    color: "#3E7C9C", style: "gas",
     size: 1.25, orbit: 22, speed: 0.072, phase: 1.1,
     kind: "photo",
     photo: "assets/images/photo-2.png",
@@ -74,7 +74,7 @@ const PLANETS = [
   {
     key: "flowers",
     name: "Çiçekler",
-    color: "#DDA7A0",
+    color: "#C98B84", style: "rocky",
     size: 1.0, orbit: 29, speed: 0.056, phase: 2.4,
     kind: "photo",
     photo: "assets/images/photo-3.webp",
@@ -84,7 +84,7 @@ const PLANETS = [
   {
     key: "home",
     name: "Ev",
-    color: "#6FB59A",
+    color: "#4E8B77", style: "gas", ring: true,
     size: 1.35, orbit: 37, speed: 0.043, phase: 3.5,
     kind: "photo",
     photo: "assets/images/photo-4.webp",
@@ -94,7 +94,7 @@ const PLANETS = [
   {
     key: "dreams",
     name: "Hayaller",
-    color: "#8A6FC7",
+    color: "#6E57A6", style: "gas",
     size: 1.15, orbit: 45, speed: 0.034, phase: 4.7,
     kind: "text",
     text: "Birlikte yapacağımız o kadar çok şey var. Gezmek, birlikte büyümek, yıllar sonra bu geceyi gülümseyerek anmak. Önümüzde koca bir evren var.",
@@ -102,7 +102,7 @@ const PLANETS = [
   {
     key: "letter",
     name: "Mektup",
-    color: "#E8B04A",
+    color: "#D9A23E", style: "gas", ring: true,
     size: 1.2, orbit: 54, speed: 0.026, phase: 5.9,
     kind: "letter",
     text: "Sana yazdığım bir mektup var. Açmak için dokun.",

@@ -168,7 +168,7 @@ body[data-scene="travel"] .progress { opacity: 1; }
 
 /* -------------------------------------------------------- chapter panel */
 .panel {
-  position: fixed; z-index: 50;
+  position: fixed; z-index: 70;
   right: 0; top: 0; bottom: 0;
   width: min(92vw, 460px);
   padding: clamp(24px, 5vw, 48px);
@@ -181,12 +181,15 @@ body[data-scene="travel"] .progress { opacity: 1; }
 }
 .panel.open { transform: none; opacity: 1; visibility: visible; }
 .panel__close {
-  position: absolute; top: 16px; right: 18px;
-  width: 42px; height: 42px; border: none; background: transparent;
-  font-size: 1.9rem; line-height: 1; color: var(--cream); opacity: .6; border-radius: 50%;
+  position: absolute; top: 18px; left: 20px;
+  padding: 9px 16px 9px 12px;
+  font-family: var(--sans); font-size: .9rem; letter-spacing: .04em;
+  color: var(--cream); background: rgba(7,11,20,.55);
+  border: 1px solid rgba(246,216,137,.35); border-radius: 999px;
+  backdrop-filter: blur(6px); transition: background .3s var(--ease), border-color .3s var(--ease);
 }
-.panel__close:hover { opacity: 1; background: rgba(246,216,137,.1); }
-.panel__close:focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; }
+.panel__close:hover { background: rgba(246,216,137,.16); border-color: var(--honey); }
+.panel__close:focus-visible { outline: 2px solid var(--honey); outline-offset: 3px; }
 .panel__figure { margin: 0; }
 .panel__figure:empty, .panel__figure[hidden] { display: none; }
 .panel__img {
