@@ -23,6 +23,7 @@ const Sound = (() => {
   let music = null;           // main track (e.g. La Vie en Rose)
   let finaleMusic = null;     // finale track (e.g. Ebru Yaşar)
   let onFinaleTrack = false;
+  let finaleMood = false;     // fuller arrangement for the generated theme
   const nodes = [];           // keep references so we can stop cleanly
 
   /* Create the context lazily (needs a user gesture on most browsers). */
@@ -130,6 +131,7 @@ const Sound = (() => {
   function toFinaleTrack() {
     if (onFinaleTrack) return;
     onFinaleTrack = true;
+    finaleMood = true;                 // the generated theme swells fuller
     if (!enabled) return;
     if (music) fadeEl(music, 0);
     if (finaleMusic) { finaleMusic.play().catch(() => {}); fadeEl(finaleMusic, 0.8); }
@@ -142,8 +144,8 @@ const Sound = (() => {
     if (!ensureContext()) return;
     buildPad();
     buildWind();
-    buildPiano();
     buildMusic();
+    if (!CONFIG.musicSrc) buildMelody();   // use the built-in theme when no file
     started = true;
   }
 
@@ -162,17 +164,34 @@ const Sound = (() => {
     o.start(when); o.stop(when + dur + 0.05);
     nodes.push(o);
   }
-  const pianoScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33];
-  function buildPiano() {
-    function scheduleNext() {
+  /* An ORIGINAL, gentle romantic waltz theme (not a copyrighted song). This is
+     the built-in music; it plays when no `musicSrc` file is provided. Notes go
+     through the master gain, so the sound toggle mutes it too. */
+  const MELODY = [
+    [329.63,1],[440,1],[523.25,1],[493.88,2],[392,1],
+    [440,1],[523.25,1],[659.25,1],[587.33,2],[493.88,1],
+    [523.25,1],[440,1],[349.23,1],[329.63,3],[0,1],
+    [293.66,1],[349.23,1],[440,1],[392,2],[329.63,1],
+    [440,3],[0,2],
+  ];
+  const BEAT = 0.56;
+  function buildMelody() {
+    let idx = 0, t = ctx.currentTime + 0.4;
+    function tick() {
       if (!ctx) return;
-      const n = pianoScale[Math.floor(Math.random() * pianoScale.length)];
-      const now = ctx.currentTime + 0.05;
-      pianoNote(n, now, 2.6, 0.05);
-      if (Math.random() < 0.3) pianoNote(n * 1.5, now + 0.09, 2.2, 0.028);  // soft fifth
-      setTimeout(scheduleNext, 1900 + Math.random() * 2400);
+      const ahead = ctx.currentTime + 1.6;
+      while (t < ahead) {
+        const note = MELODY[idx], f = note[0], beats = note[1];
+        if (f > 0) {
+          pianoNote(f, t, beats * BEAT * 0.96, finaleMood ? 0.08 : 0.055);
+          if (finaleMood) pianoNote(f / 2, t, beats * BEAT * 0.96, 0.035);   // octave under
+        }
+        t += beats * BEAT;
+        idx = (idx + 1) % MELODY.length;
+      }
+      setTimeout(tick, 500);
     }
-    scheduleNext();
+    tick();
   }
 
   /* Smoothly ramp the master gain. */
