@@ -58,6 +58,7 @@
     birthday:   $("#birthday"),
     bTitle:     $("#bTitle"),
     bSub:       $("#bSub"),
+    finaleCamBtn:$("#finaleCamBtn"),
     secretToast:$("#secretToast"),
     starmap:    $("#starmap"),
     telescope:      $("#telescope"),
@@ -245,8 +246,8 @@
     });
     return new THREE.Points(geo, mat);
   }
-  const starsFar  = makeStars(coarse ? 900 : 1800, 1600, 6, 0xffffff);
-  const starsNear = makeStars(coarse ? 500 : 1100, 900, 4, 0xfff2cf);
+  const starsFar  = makeStars(coarse ? 800 : 1500, 1600, 6, 0xffffff);
+  const starsNear = makeStars(coarse ? 260 : 520, 900, 4, 0xfff2cf);
   scene.add(starsFar, starsNear);
   // Extra light appears with discovery: a hidden layer that fades in.
   const starsBloom = makeStars(coarse ? 500 : 1100, 700, 7, 0xffe6b0);
@@ -351,15 +352,39 @@
   const belt = makeBelt(40, 43.6, coarse ? 400 : 850);
   scene.add(belt);
 
+  /* ------------------------------------------------ BACKGROUND PLANETS */
+  // Distant little worlds drifting in the deep — the sky is full of planets.
+  const bgGroup = new THREE.Group(); scene.add(bgGroup);
+  const bgColors = ["#c98b84","#6e57a6","#3e7c9c","#4e8b77","#d9a23e","#8a6f5a","#9fb4d4","#C46B2E"];
+  const bgCount = coarse ? 9 : 15;
+  for (let i = 0; i < bgCount; i++) {
+    const col = bgColors[i % bgColors.length];
+    const r = 3 + Math.random() * 7;
+    const tex = planetTexture(col, Math.random() < 0.5 ? "gas" : "rocky");
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 24),
+      new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0,
+        emissive: new THREE.Color(col).multiplyScalar(0.05) }));
+    const dist = 240 + Math.random() * 380;
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(2*Math.random() - 1);
+    m.position.set(dist*Math.sin(ph)*Math.cos(th), (Math.random()-0.5)*300, dist*Math.sin(ph)*Math.sin(th));
+    m.userData.spin = 0.04 + Math.random() * 0.14;
+    bgGroup.add(m);
+  }
+
   /* ----------------------------------------------------- HIDDEN SECRET STARS */
+  // Hidden easter-egg worlds: small planets that reveal a message when tapped.
   const secretMeshes = [];
   SECRETS.forEach((s, i) => {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, color: 0xfff0cf,
-      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
-    sp.position.set(s.pos[0], s.pos[1], s.pos[2]);
-    sp.scale.set(5, 5, 1);
-    sp.userData = { secret: i, found: false };
-    scene.add(sp); secretMeshes.push(sp);
+    const col = s.color || "#c98b84";
+    const R = 2.3;
+    const tex = planetTexture(col, i % 2 ? "gas" : "rocky");
+    const m = new THREE.Mesh(new THREE.SphereGeometry(R, 32, 32),
+      new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex, bumpScale: 0.08,
+        roughness: 0.9, metalness: 0, emissive: new THREE.Color(col).multiplyScalar(0.06) }));
+    m.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    m.add(atmosphere(col, R));
+    m.userData = { secret: i, found: false, spin: 0.2 + Math.random()*0.3 };
+    scene.add(m); secretMeshes.push(m);
   });
 
   /* ------------------------------------------------- HIDDEN TELESCOPE STAR */
@@ -420,14 +445,33 @@
       el.secretToast.setAttribute("aria-hidden", "true");
     }, 4500);
   }
-  function revealSecret(i, sprite) {
-    if (!sprite.userData.found) {
-      sprite.userData.found = true;
-      sprite.material.color.set(0xffe6b0);
-      tween(sprite.scale, { x: 8, y: 8 }, 0.6, easeOut);
+  function revealSecret(i, obj) {
+    if (!obj.userData.found) {
+      obj.userData.found = true;
+      if (obj.material && obj.material.emissive) obj.material.emissive.setScalar(0.22);
+      tween(obj.scale, { x: 1.4, y: 1.4, z: 1.4 }, 0.6, easeOut);
       Sound && Sound.chime();
     }
     toast(SECRETS[i].text);
+  }
+  // Golden confetti burst (used at the birthday reveal and after a photo).
+  function confettiBurst() {
+    if (prefersReduced) return;
+    const colors = ["#E8B04A", "#F6D889", "#FFF3D0", "#DDA7A0", "#FFFFFF"];
+    for (let i = 0; i < 80; i++) {
+      const d = document.createElement("div");
+      d.className = "confetti";
+      d.style.background = colors[i % colors.length];
+      const ang = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 300;
+      d.style.setProperty("--tx", Math.cos(ang) * dist + "px");
+      d.style.setProperty("--ty", (Math.sin(ang) * dist - 60) + "px");
+      d.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
+      d.style.animationDelay = (Math.random() * 0.18) + "s";
+      const sz = 6 + Math.random() * 7;
+      d.style.width = d.style.height = sz + "px";
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 2700);
+    }
   }
   function spawnPetals() {
     if (prefersReduced) return;
@@ -763,7 +807,6 @@
     // clear the sky so the screen becomes pure light
     [starsFar, starsNear, starsBloom, belt].forEach((o) => tween(o.material, { opacity: 0 }, 3));
     nebulas.forEach((n) => tween(n.material, { opacity: 0 }, 3));
-    secretMeshes.forEach((sp) => tween(sp.material, { opacity: 0 }, 2));
     if (scopeMesh) tween(scopeMesh.material, { opacity: 0 }, 2);
     setTimeout(startFinale, 3600);
   }
@@ -804,8 +847,9 @@
     setTimeout(() => {
       el.birthday.hidden = false;
       requestAnimationFrame(() => el.birthday.classList.add("show"));
+      confettiBurst();
     }, 900);
-    setTimeout(showStarmap, 6500);   // calm astronomical closer
+    setTimeout(showStarmap, 8000);   // calm astronomical closer
   }
 
   /* ==================================================== STAR MAP (closer) */
@@ -863,6 +907,8 @@
   }
   function showStarmap() {
     if (state.scene === "starmap") return;
+    // don't interrupt the camera moment — wait until it's closed
+    if (el.telescope.classList.contains("open")) { setTimeout(showStarmap, 4000); return; }
     state.scene = "starmap";
     el.finale.classList.remove("show");
     el.starmap.setAttribute("aria-hidden", "false");
@@ -942,6 +988,7 @@
     drawFrameArt(ctx, size);
     el.telescope.classList.add("captured");
     scopeActions([[CONFIG.telescopeSave, savePhoto, true], [CONFIG.telescopeAgain, retryShot, false]]);
+    confettiBurst();          // golden confetti after the shot
   }
   function drawFrameArt(ctx, size) {
     const g = ctx.createRadialGradient(size/2, size/2, size*0.28, size/2, size/2, size*0.55);
@@ -1049,12 +1096,14 @@
     // asteroid belt + shooting stars
     belt.rotation.y += dt * 0.02;
     updateShooters(dt);
-    // hidden stars twinkle
-    for (const sp of secretMeshes) {
-      if (sp.userData.found) continue;
-      const s = 5 * (1 + Math.sin(state.time * 2 + sp.position.x) * 0.2);
-      sp.scale.set(s, s, 1);
+    // hidden worlds gently spin + pulse
+    for (const m of secretMeshes) {
+      m.rotation.y += dt * (m.userData.spin || 0.3);
+      if (!m.userData.found) { const s = 1 + Math.sin(state.time * 2 + m.position.x) * 0.06; m.scale.set(s, s, s); }
     }
+    // background planets drift
+    bgGroup.rotation.y += dt * 0.004;
+    for (const m of bgGroup.children) m.rotation.y += dt * (m.userData.spin || 0.1);
     // telescope star pulse
     if (scopeMesh.material.opacity > 0.01) {
       const ss = 7 * (1 + Math.sin(state.time * 1.6) * 0.18);
@@ -1096,6 +1145,7 @@
   $$("[data-close]", el.letter).forEach((n) => n.addEventListener("click", closeLetter));
   el.wishBtn.addEventListener("click", openWish);
   el.wishForm.addEventListener("submit", sendWish);
+  el.finaleCamBtn.addEventListener("click", openTelescope);
   $$("[data-tclose]", el.telescope).forEach((n) => n.addEventListener("click", closeTelescope));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {

@@ -288,6 +288,21 @@ body[data-scene="travel"] .progress { opacity: 1; }
 .finale__bTitle { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 8vw, 4rem); color: #3a2410; text-shadow: 0 1px 24px rgba(255,250,235,.6); }
 .finale__bSub { margin-top: 14px; font-weight: 400; font-size: clamp(1rem,3.4vw,1.3rem); color: #5b3a29; max-width: 640px; }
 
+/* ---------------------------------------------------------- CONFETTI */
+.confetti {
+  position: fixed; z-index: 120; top: 44%; left: 50%;
+  width: 8px; height: 8px; border-radius: 2px; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: confetti 2.3s cubic-bezier(.2,.6,.3,1) forwards;
+}
+@keyframes confetti {
+  0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  100% { opacity: 0;
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px) + 42vh)) rotate(var(--rot, 360deg)); }
+}
+.finale__camBtn { margin-top: 26px; background: rgba(255,255,255,.35); color: #4a2c12; border-color: rgba(120,70,20,.45); }
+.finale__camBtn:hover { background: rgba(255,255,255,.55); border-color: #9a3d0e; }
+
 /* ---------------------------------------------------------- STAR MAP */
 .starmap {
   position: fixed; inset: 0; z-index: 90;

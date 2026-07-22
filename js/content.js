@@ -148,9 +148,8 @@ const LETTER = [
    short message appears. Write your own inside jokes / lines here (Turkish).
    `pos` is where the star hides in space; leave these or move them around.     */
 const SECRETS = [
-  { pos: [-62,  38, -34], text: "Yol boyunca uyuyan sensin ama en güzel anılar hep seninle." },
-  { pos: [ 74, -26,  22], text: "Bizim o iç şakamız… (buraya kendi şakanızı yazabilirsin)" },
-  { pos: [ 26,  58, -78], text: "Bir gün mutlaka o yolculuğa birlikte çıkacağız." },
+  { pos: [-62, 38, -34], color: "#c98b84", text: "Yol boyunca uyuyan sensin ama en güzel anılar hep seninle." },
+  { pos: [ 44, 50, -70], color: "#6e57a6", text: "Bir gün mutlaka o yolculuğa birlikte çıkacağız." },
 ];
 
 window.SUNSHINE = { CONFIG, PLANETS, LETTER, SECRETS };
