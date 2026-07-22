@@ -8,7 +8,7 @@
      • LETTER      → the letter shown in Scene 6
 
    Photos: drop your real images into  assets/images/  and point each memory's
-   `image` field at them (e.g. "assets/images/photo-1.jpg"). If a photo is
+   `image` field at them (e.g. "assets/images/photo-1.png"). If a photo is
    missing, a warm placeholder is shown automatically so the experience still
    works — nothing is ever left as an empty box.
    ========================================================================== */
@@ -67,40 +67,40 @@ const CONFIG = {
    You can add or remove entries — the progress dots adapt automatically.        */
 const memories = [
   {
-    // photo-1.jpg  →  the CAFÉ photo (the two of you at a table with iced drinks)
-    image: "assets/images/photo-1.jpg",
+    // photo-1.png  →  the CAFÉ photo (the two of you at a table with iced drinks)
+    image: "assets/images/photo-1.png",
     title: "The café",
     text:  "The simplest days became memories because you were there.",
     alt:   "The two of us at a café with our drinks.",
     x: 50, y: 30,
   },
   {
-    // photo-2.jpg  →  the OUTDOOR selfie (sunny day in the park, sunglasses)
-    image: "assets/images/photo-2.jpg",
+    // photo-2.png  →  the OUTDOOR selfie (sunny day in the park, sunglasses)
+    image: "assets/images/photo-2.png",
     title: "Out in the world",
     text:  "Every place felt brighter with you.",
     alt:   "A sunny selfie of us outside in the park.",
     x: 22, y: 33,
   },
   {
-    // photo-3.jpg  →  the FLOWERS photo (mirror selfie holding the little pink flowers)
-    image: "assets/images/photo-3.jpg",
+    // photo-3.webp →  the FLOWERS photo (mirror selfie holding the little pink flowers)
+    image: "assets/images/photo-3.webp",
     title: "The flowers",
     text:  "You gave me flowers. You became the sunlight.",
     alt:   "The two of us in a mirror, holding little pink flowers.",
     x: 76, y: 26,
   },
   {
-    // photo-4.jpg  →  the NIGHT-OUT photo (Gözde in the fur coat under the string lights)
-    image: "assets/images/photo-4.jpg",
+    // photo-4.webp →  the NIGHT-OUT photo (Gözde in the fur coat under the string lights)
+    image: "assets/images/photo-4.webp",
     title: "The warm night",
     text:  "Even the darkest places felt warm with you.",
     alt:   "Gözde under warm string lights on a night out.",
     x: 30, y: 64,
   },
   {
-    // photo-5.jpg  →  the SOLO portrait of Gözde (this also becomes the finale backdrop)
-    image: "assets/images/photo-5.jpg",
+    // photo-5.webp →  the SOLO portrait of Gözde (this also becomes the finale backdrop)
+    image: "assets/images/photo-5.webp",
     title: "The light all along",
     text:  "I kept looking for the light — and there you were.",
     alt:   "A portrait of Gözde in the soft daylight.",
