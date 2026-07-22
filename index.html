@@ -91,6 +91,37 @@
     </div>
   </section>
 
+  <!-- ============================ STAR MAP (closing) =================== -->
+  <section class="starmap" id="starmap" aria-hidden="true">
+    <div class="starmap__inner">
+      <p class="starmap__eyebrow" id="starmapEyebrow"></p>
+      <h2 class="starmap__title" id="starmapTitle"></h2>
+      <svg class="starmap__svg" id="starmapSvg" viewBox="0 0 600 380" aria-hidden="true"></svg>
+      <p class="starmap__caption" id="starmapCaption"></p>
+      <p class="starmap__close" id="starmapClose"></p>
+    </div>
+  </section>
+
+  <!-- ============================ TELESCOPE / CAMERA =================== -->
+  <div class="telescope" id="telescope" role="dialog" aria-modal="true"
+       aria-label="Teleskop" aria-hidden="true">
+    <div class="telescope__backdrop" data-tclose></div>
+    <div class="telescope__scope">
+      <button class="telescope__close" id="telescopeCloseBtn" type="button" aria-label="Kapat" data-tclose>&times;</button>
+      <div class="telescope__stage" id="telescopeStage">
+        <video class="telescope__video" id="telescopeVideo" playsinline muted></video>
+        <canvas class="telescope__canvas" id="telescopeCanvas"></canvas>
+        <div class="telescope__frameArt" id="telescopeFrame" aria-hidden="true"></div>
+        <div class="telescope__count" id="telescopeCount" aria-hidden="true"></div>
+        <div class="telescope__flash" id="telescopeFlash" aria-hidden="true"></div>
+      </div>
+      <p class="telescope__ask" id="telescopeAsk"></p>
+      <div class="telescope__actions" id="telescopeActions">
+        <button class="btn btn--gold" id="telescopeOpenBtn" type="button"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hidden-star message. -->
   <p class="secret-toast" id="secretToast" role="status" aria-live="polite" aria-hidden="true"></p>
 

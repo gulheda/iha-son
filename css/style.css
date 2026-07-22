@@ -240,15 +240,19 @@ body[data-scene="travel"] .progress { opacity: 1; }
 /* --------------------------------------------------------------- finale */
 .finale {
   opacity: 0; visibility: hidden; pointer-events: none;
-  transition: opacity 2s var(--ease), visibility 2s var(--ease);
-  background: radial-gradient(60vmax 60vmax at 50% 46%, rgba(20,14,8,.2), rgba(3,5,10,.55) 70%);
+  transition: opacity 2.6s var(--ease), visibility 2.6s var(--ease);
+  /* a bright, warm sunlit wash that clears the stars behind it */
+  background: radial-gradient(95vmax 95vmax at 50% 40%,
+    #fff8e6 0%, #f9df9f 28%, #eeba60 52%, #e39a46 76%, #cd7c31 100%);
 }
 .finale.show { opacity: 1; visibility: visible; pointer-events: auto; }
 .finale__photo {
   position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%) scale(.6);
-  width: min(46vw, 260px); height: auto; border-radius: 50%;
+  width: min(46vw, 262px); height: auto; border-radius: 50%;
   object-fit: cover; aspect-ratio: 1;
-  box-shadow: 0 0 80px 30px rgba(246,216,137,.4), 0 0 160px 70px rgba(232,176,74,.25);
+  border: 3px solid rgba(255,255,255,.75);
+  box-shadow: 0 0 70px 26px rgba(255,240,200,.75), 0 0 150px 70px rgba(255,220,150,.55),
+              0 22px 60px rgba(120,70,20,.35);
   opacity: 0; transition: opacity 2.4s var(--ease), transform 2.4s var(--ease);
 }
 .finale__photo.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
@@ -258,30 +262,89 @@ body[data-scene="travel"] .progress { opacity: 1; }
   max-width: 900px;
 }
 .finale__lines p {
-  font-family: var(--serif); font-weight: 500;
-  font-size: clamp(1.4rem, 5vw, 2.8rem); line-height: 1.25; color: var(--cream);
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.4rem, 5vw, 2.8rem); line-height: 1.25; color: #4a2c12;
   opacity: 0; transform: translateY(14px);
   transition: opacity 1.6s var(--ease), transform 1.6s var(--ease);
-  text-shadow: 0 2px 30px rgba(0,0,0,.5);
+  text-shadow: 0 1px 22px rgba(255,250,235,.7);
 }
 .finale__lines p.show { opacity: 1; transform: none; }
-.finale__lines p:last-child { color: var(--honey); }
+.finale__lines p:last-child { color: #9a3d0e; }
 
 .finale__wishWrap { position: relative; z-index: 2; margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .wish { display: flex; flex-direction: column; align-items: center; gap: 14px; width: min(88vw, 460px); }
-.wish__label { font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem,3.6vw,1.4rem); color: var(--cream); }
+.wish__label { font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem,3.6vw,1.4rem); color: #4a2c12; }
 .wish__input {
   width: 100%; padding: 14px 18px; text-align: center;
   font-family: var(--serif); font-size: clamp(1rem,3.4vw,1.2rem);
-  color: var(--cream); background: rgba(246,216,137,.06);
-  border: 1px solid rgba(246,216,137,.4); border-radius: 999px; outline: none;
+  color: #3a2410; background: rgba(255,255,255,.5);
+  border: 1px solid rgba(120,70,20,.4); border-radius: 999px; outline: none;
 }
-.wish__input:focus { border-color: var(--honey); box-shadow: 0 0 22px rgba(246,216,137,.25); }
+.wish__input::placeholder { color: rgba(74,44,18,.5); }
+.wish__input:focus { border-color: #9a3d0e; box-shadow: 0 0 22px rgba(180,110,40,.25); }
 
 .finale__birthday { position: relative; z-index: 2; margin-top: 26px; opacity: 0; transition: opacity 2s var(--ease); }
 .finale__birthday.show { opacity: 1; }
-.finale__bTitle { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 8vw, 4rem); color: var(--cream); text-shadow: 0 0 40px rgba(232,176,74,.35); }
-.finale__bSub { margin-top: 14px; font-weight: 300; font-size: clamp(1rem,3.4vw,1.3rem); color: rgba(247,241,231,.85); max-width: 640px; }
+.finale__bTitle { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 8vw, 4rem); color: #3a2410; text-shadow: 0 1px 24px rgba(255,250,235,.6); }
+.finale__bSub { margin-top: 14px; font-weight: 400; font-size: clamp(1rem,3.4vw,1.3rem); color: #5b3a29; max-width: 640px; }
+
+/* ---------------------------------------------------------- STAR MAP */
+.starmap {
+  position: fixed; inset: 0; z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+  background: radial-gradient(80vmax 80vmax at 50% 45%, #0a1122 0%, #05070f 68%, #03050a 100%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 2.4s var(--ease), visibility 2.4s var(--ease);
+}
+.starmap.show { opacity: 1; visibility: visible; pointer-events: auto; }
+.starmap__inner { max-width: 680px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.starmap__eyebrow { font-family: var(--sans); font-weight: 300; letter-spacing: .32em;
+  text-transform: uppercase; font-size: clamp(.68rem,2.4vw,.8rem); color: rgba(246,216,137,.8); }
+.starmap__title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem,7vw,3.4rem); color: var(--cream); }
+.starmap__svg { width: min(88vw, 540px); height: auto; margin: 4px 0; }
+.starmap__caption { font-family: var(--serif); font-style: italic; font-size: clamp(1.05rem,3.4vw,1.35rem);
+  line-height: 1.5; color: rgba(247,241,231,.9); max-width: 520px; }
+.starmap__close { font-family: var(--hand); font-size: clamp(1.3rem,4.4vw,1.8rem); color: var(--rose); margin-top: 4px; }
+.sm-line { stroke: rgba(246,216,137,.5); stroke-width: 1; fill: none; }
+.sm-star { fill: #fff6de; filter: drop-shadow(0 0 5px rgba(246,216,137,.85)); }
+.sm-star.sun { fill: #f6d889; filter: drop-shadow(0 0 12px rgba(232,176,74,.9)); }
+.sm-label { fill: var(--honey); font-family: var(--serif); font-size: 17px; letter-spacing: .05em; }
+
+/* ---------------------------------------------------------- TELESCOPE */
+.telescope {
+  position: fixed; inset: 0; z-index: 95;
+  display: grid; place-items: center; padding: 20px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .5s var(--ease), visibility .5s var(--ease);
+}
+.telescope.open { opacity: 1; visibility: visible; pointer-events: auto; }
+.telescope__backdrop { position: absolute; inset: 0; background: rgba(3,5,10,.82); backdrop-filter: blur(10px); }
+.telescope__scope { position: relative; width: min(92vw, 420px); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.telescope__close { position: absolute; top: -8px; right: -8px; z-index: 4;
+  width: 42px; height: 42px; border-radius: 50%; font-size: 1.6rem; color: var(--cream);
+  background: rgba(7,11,20,.65); border: 1px solid rgba(246,216,137,.3); }
+.telescope__close:focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; }
+.telescope__stage {
+  position: relative; width: min(78vw, 340px); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+  background: #05070f;
+  box-shadow: 0 0 0 3px rgba(246,216,137,.35), 0 0 60px rgba(232,176,74,.3), inset 0 0 60px rgba(0,0,0,.6);
+}
+.telescope__video, .telescope__canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.telescope__video { transform: scaleX(-1); }
+.telescope__canvas { display: none; }
+.telescope.captured .telescope__video { display: none; }
+.telescope.captured .telescope__canvas { display: block; }
+.telescope__frameArt { position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
+  box-shadow: inset 0 0 46px rgba(232,176,74,.4); }
+.telescope__count { position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--serif); font-size: 5rem; color: #fff6de; text-shadow: 0 0 30px rgba(232,176,74,.7); opacity: 0; }
+.telescope__count.show { opacity: 1; }
+.telescope__flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.telescope__flash.go { animation: tflash .6s ease-out; }
+@keyframes tflash { 0%{opacity:0;} 18%{opacity:.95;} 100%{opacity:0;} }
+.telescope__ask { font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem,3.6vw,1.4rem); color: var(--cream); text-align: center; min-height: 1.4em; }
+.telescope__actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
 /* ------------------------------------------------------ secret star toast */
 .secret-toast {

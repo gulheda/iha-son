@@ -59,6 +59,14 @@
     bTitle:     $("#bTitle"),
     bSub:       $("#bSub"),
     secretToast:$("#secretToast"),
+    starmap:    $("#starmap"),
+    telescope:      $("#telescope"),
+    telescopeVideo: $("#telescopeVideo"),
+    telescopeCanvas:$("#telescopeCanvas"),
+    telescopeCount: $("#telescopeCount"),
+    telescopeFlash: $("#telescopeFlash"),
+    telescopeAsk:   $("#telescopeAsk"),
+    telescopeActions:$("#telescopeActions"),
   };
 
   /* ------------------------------------------------- fill the static copy */
@@ -347,6 +355,15 @@
     scene.add(sp); secretMeshes.push(sp);
   });
 
+  /* ------------------------------------------------- HIDDEN TELESCOPE STAR */
+  // A distinct cool-white star hides the telescope (the "one more memory").
+  const scopeMesh = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, color: 0x9fd4ff,
+    transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+  scopeMesh.position.set(-34, 22, 42);
+  scopeMesh.scale.set(7, 7, 1);
+  scopeMesh.userData = { scope: true };
+  scene.add(scopeMesh);
+
   /* -------------------------------------------------------- SHOOTING STARS */
   const shooters = [];
   let nextShooter = 3;
@@ -492,9 +509,12 @@
       // hover highlight (planets, then hidden stars)
       const hit = pickPlanet();
       updateHover(hit);
-      if (!hit && secretMeshes.length) {
+      if (!hit) {
         raycaster.setFromCamera(ndc, camera);
-        if (raycaster.intersectObjects(secretMeshes, false)[0]) el.canvas.classList.add("hovering");
+        const onScope = raycaster.intersectObject(scopeMesh, false)[0];
+        const onSecret = secretMeshes.length && raycaster.intersectObjects(secretMeshes, false)[0];
+        if (onScope || onSecret) el.canvas.classList.add("hovering");
+        if (onScope) { el.label.textContent = "Teleskop"; el.label.classList.add("show"); positionLabel(scopeMesh); }
       }
     }
   }
@@ -504,9 +524,10 @@
     if (state.moved) return;                       // a drag, not a tap
     if (state.focused >= 0) { unfocus(); return; } // tap anywhere outside the panel → back to orbit
     if (state.scene === "travel") {
-      // hidden stars first (small easter eggs), then planets
+      raycaster.setFromCamera(ndc, camera);
+      // the telescope star, then hidden stars, then planets
+      if (raycaster.intersectObject(scopeMesh, false)[0]) { openTelescope(); return; }
       if (secretMeshes.length) {
-        raycaster.setFromCamera(ndc, camera);
         const sHit = raycaster.intersectObjects(secretMeshes, false)[0];
         if (sHit) { revealSecret(sHit.object.userData.secret, sHit.object); return; }
       }
@@ -718,10 +739,15 @@
     body.dataset.scene = "finale";
     Sound && Sound.swell();
     // brighten everything toward dawn
-    tween(renderer, { toneMappingExposure: 1.5 }, 4);
+    tween(renderer, { toneMappingExposure: 1.7 }, 4);
     tween(sunLight, { intensity: 6 }, 4);
     tween(sunCore.scale, { x: 3.4, y: 3.4, z: 3.4 }, 5);
     sunGlows.forEach((g) => tween(g.material, { opacity: Math.min(1, g.material.opacity * 2) }, 4));
+    // clear the sky so the screen becomes pure light
+    [starsFar, starsNear, starsBloom, belt].forEach((o) => tween(o.material, { opacity: 0 }, 3));
+    nebulas.forEach((n) => tween(n.material, { opacity: 0 }, 3));
+    secretMeshes.forEach((sp) => tween(sp.material, { opacity: 0 }, 2));
+    if (scopeMesh) tween(scopeMesh.material, { opacity: 0 }, 2);
     setTimeout(startFinale, 3600);
   }
 
@@ -762,6 +788,160 @@
       el.birthday.hidden = false;
       requestAnimationFrame(() => el.birthday.classList.add("show"));
     }, 900);
+    setTimeout(showStarmap, 6500);   // calm astronomical closer
+  }
+
+  /* ==================================================== STAR MAP (closer) */
+  const smLines = [], smStars = [];
+  function buildStarmap() {
+    $("#starmapEyebrow").textContent = CONFIG.starmapEyebrow;
+    $("#starmapTitle").textContent   = CONFIG.friendName + " Takımyıldızı";
+    $("#starmapCaption").textContent = CONFIG.starmapCaption;
+    $("#starmapClose").textContent   = CONFIG.starmapClose;
+    const svg = $("#starmapSvg");
+    const NS = "http://www.w3.org/2000/svg";
+    const pts = [[150,110],[250,64],[344,120],[300,205],[422,172],[436,82],[214,250],[104,196]];
+    const links = [[7,0],[0,1],[1,2],[2,5],[2,3],[3,4],[4,5],[3,6],[6,7]];
+    links.forEach(([a, b], i) => {
+      const l = document.createElementNS(NS, "line");
+      l.setAttribute("x1", pts[a][0]); l.setAttribute("y1", pts[a][1]);
+      l.setAttribute("x2", pts[b][0]); l.setAttribute("y2", pts[b][1]);
+      l.setAttribute("class", "sm-line");
+      const len = Math.hypot(pts[a][0]-pts[b][0], pts[a][1]-pts[b][1]);
+      l.style.strokeDasharray = len; l.style.strokeDashoffset = len;
+      l.style.transition = "stroke-dashoffset 1.2s var(--ease) " + (0.5 + i*0.13) + "s";
+      svg.appendChild(l); smLines.push(l);
+    });
+    pts.forEach((p, i) => {
+      const c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 3.4);
+      c.setAttribute("class", "sm-star");
+      c.style.opacity = "0"; c.style.transition = "opacity .8s var(--ease) " + (0.2 + i*0.12) + "s";
+      svg.appendChild(c); smStars.push(c);
+    });
+    const cs = document.createElementNS(NS, "circle");
+    cs.setAttribute("cx", 300); cs.setAttribute("cy", 168); cs.setAttribute("r", 6);
+    cs.setAttribute("class", "sm-star sun");
+    cs.style.opacity = "0"; cs.style.transition = "opacity 1s var(--ease) 1.7s";
+    svg.appendChild(cs); smStars.push(cs);
+    const label = document.createElementNS(NS, "text");
+    label.setAttribute("x", 300); label.setAttribute("y", 150);
+    label.setAttribute("text-anchor", "middle"); label.setAttribute("class", "sm-label");
+    label.textContent = CONFIG.friendName;
+    label.style.opacity = "0"; label.style.transition = "opacity 1s var(--ease) 2.1s";
+    svg.appendChild(label); smStars.push(label);
+  }
+  function showStarmap() {
+    if (state.scene === "starmap") return;
+    state.scene = "starmap";
+    el.finale.classList.remove("show");
+    el.starmap.setAttribute("aria-hidden", "false");
+    el.starmap.classList.add("show");
+    body.dataset.scene = "starmap";
+    requestAnimationFrame(() => {
+      smLines.forEach((l) => l.style.strokeDashoffset = "0");
+      smStars.forEach((s) => s.style.opacity = "1");
+    });
+  }
+
+  /* ==================================================== TELESCOPE / CAMERA */
+  let scopeStream = null;
+  function openTelescope() {
+    el.telescope.classList.add("open");
+    el.telescope.classList.remove("captured");
+    el.telescope.setAttribute("aria-hidden", "false");
+    el.telescopeAsk.textContent = CONFIG.telescopeAsk;
+    scopeActions([[CONFIG.telescopeOpen, startCamera, true]]);
+  }
+  function closeTelescope() {
+    if (scopeStream) { scopeStream.getTracks().forEach((t) => t.stop()); scopeStream = null; }
+    el.telescope.classList.remove("open", "captured");
+    el.telescope.setAttribute("aria-hidden", "true");
+    el.telescopeActions.innerHTML = "";
+  }
+  function scopeActions(list) {
+    el.telescopeActions.innerHTML = "";
+    list.forEach(([label, fn, gold]) => {
+      const b = document.createElement("button");
+      b.className = "btn" + (gold ? " btn--gold" : "");
+      b.type = "button"; b.textContent = label;
+      b.addEventListener("click", fn);
+      el.telescopeActions.appendChild(b);
+    });
+  }
+  async function startCamera() {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("no api");
+      scopeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+      el.telescopeVideo.srcObject = scopeStream;
+      await el.telescopeVideo.play();
+      el.telescopeAsk.textContent = "";
+      scopeActions([[CONFIG.telescopeShoot, shootPhoto, true]]);
+    } catch (err) {
+      el.telescopeAsk.textContent = CONFIG.telescopeNoCam;
+      scopeActions([]);
+    }
+  }
+  function shootPhoto() {
+    el.telescopeActions.innerHTML = "";
+    let n = 3;
+    el.telescopeCount.textContent = n;
+    el.telescopeCount.classList.add("show");
+    const iv = setInterval(() => {
+      n--;
+      if (n > 0) { el.telescopeCount.textContent = n; }
+      else {
+        clearInterval(iv);
+        el.telescopeCount.classList.remove("show");
+        el.telescopeFlash.classList.add("go");
+        setTimeout(() => el.telescopeFlash.classList.remove("go"), 600);
+        Sound && Sound.chime();
+        captureShot();
+      }
+    }, 850);
+  }
+  function captureShot() {
+    const v = el.telescopeVideo, c = el.telescopeCanvas, size = 720;
+    c.width = size; c.height = size;
+    const ctx = c.getContext("2d");
+    const vw = v.videoWidth || 640, vh = v.videoHeight || 480;
+    const s = Math.max(size/vw, size/vh), dw = vw*s, dh = vh*s;
+    ctx.save(); ctx.translate(size, 0); ctx.scale(-1, 1);          // mirror to match preview
+    ctx.drawImage(v, (size-dw)/2, (size-dh)/2, dw, dh);
+    ctx.restore();
+    drawFrameArt(ctx, size);
+    el.telescope.classList.add("captured");
+    scopeActions([[CONFIG.telescopeSave, savePhoto, true], [CONFIG.telescopeAgain, retryShot, false]]);
+  }
+  function drawFrameArt(ctx, size) {
+    const g = ctx.createRadialGradient(size/2, size/2, size*0.28, size/2, size/2, size*0.55);
+    g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(10,6,2,0.6)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, size, size);
+    ctx.strokeStyle = "rgba(232,176,74,0.85)"; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.arc(size/2, size/2, size/2 - 14, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = "rgba(246,216,137,0.9)";
+    for (let i = 0; i < 46; i++) {
+      const a = Math.random()*Math.PI*2, r = size/2 - 26 - Math.random()*46;
+      ctx.beginPath(); ctx.arc(size/2 + Math.cos(a)*r, size/2 + Math.sin(a)*r, Math.random()*1.6 + 0.4, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,246,222,0.96)"; ctx.font = "600 30px Georgia, serif";
+    ctx.fillText(CONFIG.fromName + " & " + CONFIG.friendName, size/2, size - 58);
+    ctx.fillStyle = "rgba(246,216,137,0.9)"; ctx.font = "300 17px system-ui, sans-serif";
+    let ds = ""; try { ds = new Date().toLocaleDateString("tr-TR"); } catch (e) {}
+    ctx.fillText("FIND YOUR SUNSHINE" + (ds ? "  ·  " + ds : ""), size/2, size - 32);
+  }
+  function savePhoto() {
+    try {
+      const a = document.createElement("a");
+      a.download = "find-your-sunshine.png";
+      a.href = el.telescopeCanvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {}
+  }
+  function retryShot() {
+    el.telescope.classList.remove("captured");
+    scopeActions([[CONFIG.telescopeShoot, shootPhoto, true]]);
   }
   // a little star that flies from the sun out into the sky
   function launchWishStar() {
@@ -845,6 +1025,11 @@
       const s = 5 * (1 + Math.sin(state.time * 2 + sp.position.x) * 0.2);
       sp.scale.set(s, s, 1);
     }
+    // telescope star pulse
+    if (scopeMesh.material.opacity > 0.01) {
+      const ss = 7 * (1 + Math.sin(state.time * 1.6) * 0.18);
+      scopeMesh.scale.set(ss, ss, 1);
+    }
 
     if (hovered >= 0 && state.focused < 0) positionLabel(planetMeshes[hovered]);
 
@@ -881,9 +1066,11 @@
   $$("[data-close]", el.letter).forEach((n) => n.addEventListener("click", closeLetter));
   el.wishBtn.addEventListener("click", openWish);
   el.wishForm.addEventListener("submit", sendWish);
+  $$("[data-tclose]", el.telescope).forEach((n) => n.addEventListener("click", closeTelescope));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       if (el.letter.classList.contains("open")) return;   // letter handles its own ESC
+      if (el.telescope.classList.contains("open")) { closeTelescope(); return; }
       if (state.focused >= 0) unfocus();
     }
   });
@@ -904,6 +1091,7 @@
   /* ============================================================= BOOT */
   buildLetter();
   buildProgress();
+  buildStarmap();
   onResize();
   body.classList.remove("is-loading");
   requestAnimationFrame(frame);
@@ -913,6 +1101,7 @@
     window.__u = {
       start, focusPlanet, unfocus, beginFinale, state, PLANETS,
       spawnShooter, revealSecret, secretMeshes, shooters,
+      openTelescope, showStarmap, scopeMesh,
       discoverAll() {
         PLANETS.forEach((_, i) => state.discovered.add(i));
         updateProgress(); evolve(); unlockSun();

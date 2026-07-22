@@ -35,6 +35,19 @@ const CONFIG = {
   birthdayTitle: "İyi ki doğdun.",
   birthdaySub:   "Evrenimdeki en parlak yıldız olduğun için teşekkür ederim.",
 
+  // Closing star map (a constellation named for your friend)
+  starmapEyebrow: "GÖKYÜZÜNDE, SENİN İÇİN",
+  starmapCaption: "Bulduğun her anı bir yıldıza dönüştü. Hepsi birlikte, artık gökyüzünde senin takımyıldızın.",
+  starmapClose:   "Her hayatta, yine sen.",
+
+  // Telescope / camera moment
+  telescopeAsk:    "Bir anı daha yaratalım mı?",
+  telescopeOpen:   "Kamerayı aç",
+  telescopeShoot:  "Fotoğraf çek",
+  telescopeSave:   "Fotoğrafı indir",
+  telescopeAgain:  "Tekrar dene",
+  telescopeNoCam:  "Kameraya ulaşılamadı. Bu özellik yayınlanmış sitede (kamera izniyle) çalışır.",
+
   // The single most special photo — appears inside the sun at the end.
   sunPhoto: "assets/images/photo-5.webp",
   sunPhotoAlt: "Gözde",
