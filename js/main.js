@@ -114,7 +114,8 @@
       btn.className = "orb";
       btn.style.left = m.x + "%";
       btn.style.top  = m.y + "%";
-      btn.setAttribute("aria-label", "A hidden memory — open it");
+      btn.style.animationDelay = (i * -0.9) + "s";   // stars twinkle out of sync
+      btn.setAttribute("aria-label", "Saklı bir anı — açmak için dokun");
       btn.addEventListener("click", () => openMemory(i));
       // Keyboard users: focusing an orb counts as reaching it.
       btn.addEventListener("focus", () => markNear(i, true));
@@ -297,7 +298,7 @@
       o.found = true;
       o.node.classList.add("is-found");
       o.node.classList.remove("is-near");
-      o.node.setAttribute("aria-label", "Memory found: " + o.data.title);
+      o.node.setAttribute("aria-label", "Bulunan anı: " + o.data.title);
       state.found++;
       state.lastFind = Date.now();
       Sound.chime();
@@ -327,7 +328,7 @@
     imgEl.alt = alt || "";
     const probe = new Image();
     probe.onload = () => { imgEl.src = src; onReady && onReady(); };
-    probe.onerror = () => { imgEl.src = placeholder(alt || "A memory"); onReady && onReady(); };
+    probe.onerror = () => { imgEl.src = placeholder(alt || "Bir anı"); onReady && onReady(); };
     probe.src = src;
   }
 
@@ -345,7 +346,7 @@
       `<text x='400' y='860' font-family='Georgia,serif' font-size='34' ` +
       `fill='%23FFF6DE' text-anchor='middle' opacity='0.9'>${encodeURIComponent(safe)}</text>` +
       `<text x='400' y='910' font-family='sans-serif' font-size='20' ` +
-      `fill='%23FFF6DE' text-anchor='middle' opacity='0.6'>replace with your photo</text>` +
+      `fill='%23FFF6DE' text-anchor='middle' opacity='0.6'>fotoğrafını buraya ekle</text>` +
       `</svg>`;
     return "data:image/svg+xml;charset=utf-8," + svg;
   }
@@ -364,8 +365,8 @@
     // Point roughly toward the nearest undiscovered orb.
     const next = state.orbs.find((o) => !o.found);
     if (!next) return;
-    const side = next.x < 40 ? "on the left" : next.x > 60 ? "on the right" : "nearby";
-    el.nudge.textContent = `A little light is waiting ${side}.`;
+    const side = next.x < 40 ? "solda" : next.x > 60 ? "sağda" : "yakınlarda";
+    el.nudge.textContent = `Küçük bir ışık ${side} seni bekliyor.`;
     el.nudge.classList.add("show");
     // Fade the hint out after a while.
     setTimeout(() => el.nudge.classList.remove("show"), 5000);
@@ -607,7 +608,7 @@
     state.orbs.forEach((o) => {
       o.found = false;
       o.node.classList.remove("is-found", "is-near");
-      o.node.setAttribute("aria-label", "A hidden memory — open it");
+      o.node.setAttribute("aria-label", "Saklı bir anı — açmak için dokun");
     });
     updateProgress();
     document.documentElement.style.setProperty("--ambient", "0");
@@ -632,10 +633,13 @@
   // Type "SUN" anywhere → secret light.
   function onKeyType(e) {
     if (e.key && e.key.length === 1) {
-      state.typedKeys = (state.typedKeys + e.key).toUpperCase().slice(-3);
-      if (state.typedKeys === "SUN") {
-        toast("You found the secret light.");
+      // Keep the last 5 letters so both "SUN" and "GUNES" unlock the secret.
+      state.typedKeys = (state.typedKeys + e.key).toLocaleUpperCase("tr").slice(-5);
+      if (state.typedKeys.endsWith("SUN") || state.typedKeys === "GUNES" ||
+          state.typedKeys === "GÜNEŞ") {
+        toast("Gizli ışığı buldun. ✨");
         Sound.chime();
+        state.typedKeys = "";
       }
     }
     // Let ESC close an open memory too.
@@ -646,14 +650,14 @@
   function onSunClick() {
     state.sunClicks++;
     if (state.sunClicks === 5) {
-      toast("Yes, she is probably sleeping again. 😴");
+      toast("Evet, muhtemelen yine uyuyordur. 😴");
       Sound.chime();
       state.sunClicks = 0;
     }
   }
 
   // Sleepy corner.
-  function onZzz() { toast("Yes, she is probably sleeping again."); Sound.chime(); }
+  function onZzz() { toast("Evet, bizim uykucu yine uyuyordur. 😴"); Sound.chime(); }
 
   // Double-click / double-tap any opened photo → floating heart.
   function heartPop(x, y) {
@@ -670,7 +674,7 @@
   /* ==================================================== SOUND TOGGLE */
   function reflectSound(on) {
     el.soundToggle.setAttribute("aria-pressed", String(on));
-    el.soundToggle.setAttribute("aria-label", on ? "Turn sound off" : "Turn sound on");
+    el.soundToggle.setAttribute("aria-label", on ? "Sesi kapat" : "Sesi aç");
   }
   function onToggleSound() {
     const on = Sound.toggle();

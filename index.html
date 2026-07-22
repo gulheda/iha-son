@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -24,7 +24,7 @@
 
   <!-- Sound toggle — always visible, top right. -->
   <button class="sound-toggle" id="soundToggle" type="button"
-          aria-pressed="false" aria-label="Turn sound on">
+          aria-pressed="false" aria-label="Sesi aç">
     <span class="sound-toggle__waves" aria-hidden="true">
       <i></i><i></i><i></i>
     </span>
@@ -32,7 +32,7 @@
   </button>
 
   <!-- ============================ SCENE 0 — INTRO ========================= -->
-  <section class="scene scene--intro is-active" id="scene-intro" aria-label="Welcome">
+  <section class="scene scene--intro is-active" id="scene-intro" aria-label="Hoş geldin">
     <div class="intro__spark" aria-hidden="true"></div>
     <p class="intro__line" id="introLine"></p>
     <p class="intro__hint" id="introHint"></p>
@@ -40,7 +40,7 @@
 
   <!-- ==================== SCENE 1–3 — THE DARK FIELD ===================== -->
   <!-- Whispers + memory orbs are injected here by main.js -->
-  <main class="field" id="field" aria-label="Explore the darkness to find hidden memories">
+  <main class="field" id="field" aria-label="Saklı anıları bulmak için karanlıkta ışığı gezdir">
     <canvas class="field__dust" id="fieldDust" aria-hidden="true"></canvas>
     <div class="field__whispers" id="whispers" aria-hidden="true"></div>
     <div class="field__memories" id="memoriesLayer"></div>
@@ -51,7 +51,7 @@
 
   <!-- Discovery progress — seven small lights, no ordinary progress bar. -->
   <div class="progress" id="progress" role="progressbar"
-       aria-label="Memories found" aria-valuemin="0" aria-valuenow="0"></div>
+       aria-label="Bulunan anılar" aria-valuemin="0" aria-valuenow="0"></div>
 
   <!-- A memory, opened up close. -->
   <div class="memory-view" id="memoryView" aria-live="polite">
@@ -62,7 +62,7 @@
   </div>
 
   <!-- ============================ SCENE 4 — SUNRISE ====================== -->
-  <section class="scene scene--sunrise" id="scene-sunrise" aria-label="Sunrise" aria-hidden="true">
+  <section class="scene scene--sunrise" id="scene-sunrise" aria-label="Gün doğumu" aria-hidden="true">
     <div class="sunrise__sky"></div>
     <div class="sunrise__haze"></div>
     <div class="sunrise__sun"></div>
@@ -71,11 +71,11 @@
   </section>
 
   <!-- ============================ SCENE 5 — ROSE ========================= -->
-  <section class="scene scene--rose" id="scene-rose" aria-label="The rose" aria-hidden="true">
+  <section class="scene scene--rose" id="scene-rose" aria-label="Gül" aria-hidden="true">
     <div class="rose" id="rose" aria-hidden="true">
       <!-- An elegant rose, drawn in SVG (not a photo). -->
       <svg viewBox="0 0 200 260" width="200" height="260" role="img"
-           aria-label="A rose slowly opening in the sunlight">
+           aria-label="Güneşin altında yavaşça açan bir gül">
         <defs>
           <radialGradient id="petal" cx="50%" cy="40%" r="65%">
             <stop offset="0%"  stop-color="#F6D889" />
@@ -116,15 +116,15 @@
     <div class="letter-modal__backdrop" data-close></div>
     <div class="letter-modal__paper" role="document">
       <button class="letter-modal__close" id="letterClose" type="button"
-              aria-label="Close letter" data-close>&times;</button>
-      <h2 class="letter-modal__heading" id="letterHeading">A letter for you</h2>
+              aria-label="Mektubu kapat" data-close>&times;</button>
+      <h2 class="letter-modal__heading" id="letterHeading">Sana bir mektup</h2>
       <div class="letter-modal__body" id="letterBody"></div>
-      <button class="btn letter-modal__done" id="letterDone" type="button">Close</button>
+      <button class="btn letter-modal__done" id="letterDone" type="button">Kapat</button>
     </div>
   </div>
 
   <!-- ============================ SCENE 7 — FINALE ======================= -->
-  <section class="scene scene--finale" id="scene-finale" aria-label="Happy birthday" aria-hidden="true">
+  <section class="scene scene--finale" id="scene-finale" aria-label="İyi ki doğdun" aria-hidden="true">
     <div class="finale__photo" id="finalePhoto" aria-hidden="true"></div>
     <div class="finale__overlay"></div>
     <div class="finale__content">
@@ -132,8 +132,8 @@
       <p class="finale__subtitle" id="finaleSubtitle"></p>
       <p class="finale__tr" id="finaleTR"></p>
       <div class="finale__buttons">
-        <button class="btn" id="replayBtn" type="button">Replay our memories</button>
-        <button class="btn btn--gold" id="surpriseBtn" type="button">One last surprise</button>
+        <button class="btn" id="replayBtn" type="button">Anıları yeniden yaşa</button>
+        <button class="btn btn--gold" id="surpriseBtn" type="button">Son bir sürpriz</button>
       </div>
     </div>
     <p class="finale__surprise" id="surpriseLine" aria-live="polite"></p>
@@ -142,7 +142,7 @@
 
   <!-- ============================ EASTER EGGS =========================== -->
   <!-- Little sleepy corner: click for a wink. -->
-  <button class="egg-zzz" id="eggZzz" type="button" aria-label="A little secret">zzz</button>
+  <button class="egg-zzz" id="eggZzz" type="button" aria-label="Küçük bir sır">zzz</button>
   <p class="egg-toast" id="eggToast" role="status" aria-live="polite" aria-hidden="true"></p>
 
   <!-- Scripts (order matters: content → audio → engine). -->

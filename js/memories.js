@@ -22,33 +22,32 @@ const CONFIG = {
   fromName: "Gülheda",
 
   // Intro screen (Scene 0)
-  introLine:  "There is a light hidden somewhere.",
-  introHint:  "Find it.",
+  introLine:  "Bir yerlerde saklı bir ışık var.",
+  introHint:  "Onu bul.",
 
   // Sunrise reveal (Scene 4) — shown one after another.
   sunriseLines: [
-    "I thought I was looking for the light.",
-    "But it was with me all along.",
+    "Işığı aradığımı sanıyordum.",
+    "Ama o hep yanı başımdaydı.",
   ],
-  sunriseFinal: "Turns out, you were always the light.",
+  sunriseFinal: "Meğer o ışık, hep senmişsin.",
 
   // Rose metaphor (Scene 5)
   roseLines: [
-    "You always called me your rose.",
-    "But every rose needs a sun.",
-    "If I am your rose, you will always be my sun.",
+    "Sen bana hep gülüm dedin.",
+    "Ama her gülün açmak için bir güneşe ihtiyacı vardır.",
+    "Ben senin gülünsem, sen de hep benim güneşim olacaksın.",
   ],
-  roseLineTR:
-    "Sen bana hep gülüm dedin. Ama her gülün açmak için bir güneşe ihtiyacı vardır. Benim güneşim sensin.",
+  roseLineTR: "İyi ki varsın, güneşim.",   // small handwritten closer under the rose
 
   // Letter button (Scene 6)
-  letterButton: "A letter for my sunshine",
+  letterButton: "Güneşime bir mektup",
 
   // Birthday finale (Scene 7)
-  finaleTitle:    "Happy Birthday, My Sunshine.",
-  finaleSubtitle: "Thank you for making my world brighter.",
+  finaleTitle:    "İyi ki doğdun, güneşim.",
+  finaleSubtitle: "Dünyamı aydınlattığın için teşekkür ederim.",
   finaleTR:       "İyi ki doğdun, iyi ki benim güneşim oldun.",
-  surpriseLine:   "In every lifetime, I would still choose you as my best friend.",
+  surpriseLine:   "Her hayatta yine seni en yakın arkadaşım olarak seçerdim.",
 
   // Background music (optional). Drop a file in assets/audio/ and set the path,
   // e.g. "assets/audio/song.mp3". Leave "" to use only the generated ambience.
@@ -69,41 +68,41 @@ const memories = [
   {
     // photo-1.png  →  the CAFÉ photo (the two of you at a table with iced drinks)
     image: "assets/images/photo-1.png",
-    title: "The café",
-    text:  "The simplest days became memories because you were there.",
-    alt:   "The two of us at a café with our drinks.",
+    title: "O kafe",
+    text:  "En sıradan günler bile, sen yanımda olduğun için anıya dönüştü.",
+    alt:   "İkimiz bir kafede, içeceklerimizle.",
     x: 50, y: 30,
   },
   {
     // photo-2.png  →  the OUTDOOR selfie (sunny day in the park, sunglasses)
     image: "assets/images/photo-2.png",
-    title: "Out in the world",
-    text:  "Every place felt brighter with you.",
-    alt:   "A sunny selfie of us outside in the park.",
+    title: "Dışarıda",
+    text:  "Seninle her yer daha aydınlıktı.",
+    alt:   "Dışarıda, güneşli bir günde ikimiz.",
     x: 22, y: 33,
   },
   {
     // photo-3.webp →  the FLOWERS photo (mirror selfie holding the little pink flowers)
     image: "assets/images/photo-3.webp",
-    title: "The flowers",
-    text:  "You gave me flowers. You became the sunlight.",
-    alt:   "The two of us in a mirror, holding little pink flowers.",
+    title: "Çiçekler",
+    text:  "Sen bana çiçek verdin. Sonra da güneşim oldun.",
+    alt:   "Aynada, elimizde küçük pembe çiçeklerle ikimiz.",
     x: 76, y: 26,
   },
   {
     // photo-4.webp →  the NIGHT-OUT photo (Gözde in the fur coat under the string lights)
     image: "assets/images/photo-4.webp",
-    title: "The warm night",
-    text:  "Even the darkest places felt warm with you.",
-    alt:   "Gözde under warm string lights on a night out.",
+    title: "O sıcak gece",
+    text:  "En karanlık yerler bile seninle sımsıcaktı.",
+    alt:   "Işıkların altında, bir gece Gözde.",
     x: 30, y: 64,
   },
   {
     // photo-5.webp →  the SOLO portrait of Gözde (this also becomes the finale backdrop)
     image: "assets/images/photo-5.webp",
-    title: "The light all along",
-    text:  "I kept looking for the light — and there you were.",
-    alt:   "A portrait of Gözde in the soft daylight.",
+    title: "Baştan beri o ışık",
+    text:  "Hep ışığı aradım — ve karşımda hep sen vardın.",
+    alt:   "Yumuşak gün ışığında Gözde'nin portresi.",
     x: 72, y: 62,
   },
 ];
@@ -112,9 +111,9 @@ const memories = [
    Faint lines that live in the darkness. They glow only when your light
    passes over them — little breadcrumbs that set the mood.                     */
 const whispers = [
-  { text: "Some people enter your life quietly.",     x: 44, y: 16 },
-  { text: "And somehow, everything becomes warmer.",  x: 58, y: 82 },
-  { text: "Keep looking. Warmth hides in the dark.",  x: 12, y: 84 },
+  { text: "Bazı insanlar hayatına sessizce girer.",   x: 44, y: 16 },
+  { text: "Ve bir bakmışsın, her şey daha sıcak.",     x: 58, y: 82 },
+  { text: "Aramaya devam et. Sıcaklık karanlıkta saklı.", x: 12, y: 84 },
 ];
 
 /* ------------------------------------------------------------------ LETTER

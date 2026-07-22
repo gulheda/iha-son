@@ -218,45 +218,59 @@ body[data-scene="field"] .field { opacity: 1; visibility: visible; pointer-event
   text-shadow: 0 0 26px rgba(246,216,137,.45);
 }
 
-/* Memory orbs — warm glowing dust that hides a photo. They read as light,
-   never as dark dots: a bright core, a soft golden bloom, gently drifting. */
+/* Memory points — twinkling STARS that hide a photo. A four-point sparkle
+   with a warm halo behind it, gently shimmering in the dark. */
 .orb {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 16px; height: 16px;
+  width: 26px; height: 26px;
   border: 0; padding: 0;
+  background: transparent;
+  cursor: none;
+  opacity: .92;
+  mix-blend-mode: screen;           /* blends into the dark like real light */
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+  animation: twinkle 4.5s ease-in-out infinite;
+}
+/* Soft round halo/bloom behind the star. */
+.orb::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 320%; height: 320%; transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(closest-side,
-    rgba(255, 250, 236, 1) 0%,
-    rgba(246, 216, 137, .9) 42%,
-    rgba(232, 176, 74, .4) 70%,
-    transparent 80%);
-  box-shadow:
-    0 0 16px 5px rgba(246, 216, 137, .5),
-    0 0 42px 16px rgba(232, 176, 74, .28);
-  mix-blend-mode: screen;           /* blends into the dark like real light */
-  opacity: .68;
-  animation: mote 6s ease-in-out infinite;
-  transition: opacity .6s var(--ease), transform .6s var(--ease), box-shadow .6s var(--ease);
-  cursor: none;
+    rgba(246,216,137,.4), rgba(232,176,74,.12) 45%, transparent 72%);
+  z-index: 0;
+}
+/* The star itself — a four-point sparkle. */
+.orb::before {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: radial-gradient(closest-side, #fffdf3 0%, #f6d889 48%, #e8b04a 100%);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%,
+                     50% 100%, 39% 61%, 0% 50%, 39% 39%);
+  filter: drop-shadow(0 0 4px rgba(255,240,200,.9))
+          drop-shadow(0 0 11px rgba(232,176,74,.6));
 }
 .orb:focus-visible { outline: 2px solid var(--honey); outline-offset: 8px; opacity: 1; }
 .orb.is-near {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.55);
-  box-shadow: 0 0 26px 8px rgba(246,216,137,.7), 0 0 64px 22px rgba(232,176,74,.4);
+  opacity: 1; animation: none;
+  transform: translate(-50%, -50%) scale(1.7) rotate(0deg);
 }
-.orb.is-found {
-  opacity: .6;
-  background: radial-gradient(closest-side, rgba(221,167,160,.95), rgba(221,167,160,.3) 55%, transparent 75%);
-  box-shadow: 0 0 14px 4px rgba(221,167,160,.4);
-  animation: none;
+.orb.is-near::before {
+  filter: drop-shadow(0 0 7px #fff6de) drop-shadow(0 0 18px rgba(232,176,74,.85));
 }
-/* A gentle firefly drift so the motes feel alive, not pinned. */
-@keyframes mote {
-  0%,100% { transform: translate(-50%, -50%) scale(1); }
-  30%     { transform: translate(-53%, -54%) scale(1.14); }
-  65%     { transform: translate(-47%, -49%) scale(.95); }
+/* Discovered stars turn to a soft rose and rest. */
+.orb.is-found { opacity: .6; animation: none; transform: translate(-50%, -50%) scale(.92); }
+.orb.is-found::before {
+  background: radial-gradient(closest-side, #f7ded9, #dda7a0 60%, #b98a83);
+  filter: drop-shadow(0 0 5px rgba(221,167,160,.6));
+}
+.orb.is-found::after {
+  background: radial-gradient(closest-side, rgba(221,167,160,.3), transparent 70%);
+}
+/* A gentle twinkle so the stars shimmer, not sit still. */
+@keyframes twinkle {
+  0%,100% { transform: translate(-50%, -50%) scale(.88) rotate(0deg);  opacity: .7; }
+  50%     { transform: translate(-50%, -50%) scale(1.15) rotate(24deg); opacity: 1; }
 }
 
 /* --------------------------------------------- 7) PROGRESS + MEMORY VIEW */
