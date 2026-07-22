@@ -381,6 +381,8 @@ body[data-scene="travel"] .progress { opacity: 1; }
 .telescope__flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
 .telescope__flash.go { animation: tflash .6s ease-out; }
 @keyframes tflash { 0%{opacity:0;} 18%{opacity:.95;} 100%{opacity:0;} }
+.telescope__title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem,6vw,2.6rem);
+  color: var(--honey); text-align: center; text-shadow: 0 0 30px rgba(232,176,74,.4); }
 .telescope__ask { font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem,3.6vw,1.4rem); color: var(--cream); text-align: center; min-height: 1.4em; }
 .telescope__actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 

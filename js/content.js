@@ -44,7 +44,7 @@ const CONFIG = {
   starmapClose:   "Her hayatta, yine sen.",
 
   // Telescope / camera moment
-  telescopeAsk:    "Bir anı daha yaratalım mı?",
+  telescopeAsk:    "Hadi, bir anı ölümsüzleştirelim mi?",
   telescopeOpen:   "Kamerayı aç",
   telescopeShoot:  "Fotoğraf çek",
   telescopeSave:   "Fotoğrafı indir",

@@ -69,6 +69,7 @@
     telescopeFlash: $("#telescopeFlash"),
     telescopeAsk:   $("#telescopeAsk"),
     telescopeActions:$("#telescopeActions"),
+    telescopeTitle: $("#telescopeTitle"),
   };
 
   /* ------------------------------------------------- fill the static copy */
@@ -909,8 +910,10 @@
     el.telescope.classList.add("open");
     el.telescope.classList.remove("captured");
     el.telescope.setAttribute("aria-hidden", "false");
+    el.telescopeTitle.textContent = "İyi ki doğdun 💛";
     el.telescopeAsk.textContent = CONFIG.telescopeAsk;
     scopeActions([[CONFIG.telescopeOpen, startCamera, true]]);
+    confettiBurst();                     // celebrate the moment the camera opens
   }
   function closeTelescope() {
     if (scopeStream) { scopeStream.getTracks().forEach((t) => t.stop()); scopeStream = null; }
@@ -970,10 +973,8 @@
     ctx.restore();
     drawFrameArt(ctx, size);
     el.telescope.classList.add("captured");
-    el.telescopeAsk.textContent = "İyi ki doğdun 💛";
+    el.telescopeAsk.textContent = "";
     scopeActions([[CONFIG.telescopeSave, savePhoto, true], [CONFIG.telescopeAgain, retryShot, false]]);
-    confettiBurst();          // golden confetti after the shot
-    if (Sound && Sound.toFinaleTrack) Sound.toFinaleTrack();   // Ebru Yaşar moment
   }
   function drawFrameArt(ctx, size) {
     const g = ctx.createRadialGradient(size/2, size/2, size*0.28, size/2, size/2, size*0.55);
@@ -1163,6 +1164,10 @@
   onResize();
   body.classList.remove("is-loading");
   requestAnimationFrame(frame);
+
+  // Greet the visitor: the camera opens first, with "İyi ki doğdun" + confetti.
+  // (The intro waits behind it; closing the camera reveals it.)
+  setTimeout(openTelescope, 700);
 
   /* Test-only hooks (active only with ?debug in the URL). */
   if (location.search.indexOf("debug") >= 0) {
