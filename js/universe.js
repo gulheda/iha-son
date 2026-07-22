@@ -810,6 +810,20 @@
 
   /* ==================================================== STAR MAP (closer) */
   const smLines = [], smStars = [];
+  // Connect the stars so they trace a FACE — outline, brows, eyes, nose, lips.
+  // Each group is a list of points; `loop` closes the shape back to its start.
+  const FACE = [
+    { loop: true,  pts: [[200,50],[250,58],[292,86],[318,135],[330,195],[326,255],
+                         [300,305],[255,345],[200,362],[145,345],[100,305],[74,255],
+                         [70,195],[82,135],[108,86],[150,58]] },           // face outline
+    { loop: false, pts: [[112,168],[142,158],[172,167]] },                 // left brow
+    { loop: false, pts: [[228,167],[258,158],[288,168]] },                 // right brow
+    { loop: true,  pts: [[120,192],[146,184],[172,192],[146,201]] },       // left eye
+    { loop: true,  pts: [[228,192],[254,184],[280,192],[254,201]] },       // right eye
+    { loop: false, pts: [[200,196],[200,258],[184,272],[200,280],[216,272],[200,258]] }, // nose
+    { loop: true,  pts: [[162,312],[185,304],[200,310],[215,304],[238,312],
+                         [214,330],[200,335],[186,330]] },                 // lips
+  ];
   function buildStarmap() {
     $("#starmapEyebrow").textContent = CONFIG.starmapEyebrow;
     $("#starmapTitle").textContent   = CONFIG.friendName + " Takımyıldızı";
@@ -817,35 +831,34 @@
     $("#starmapClose").textContent   = CONFIG.starmapClose;
     const svg = $("#starmapSvg");
     const NS = "http://www.w3.org/2000/svg";
-    const pts = [[150,110],[250,64],[344,120],[300,205],[422,172],[436,82],[214,250],[104,196]];
-    const links = [[7,0],[0,1],[1,2],[2,5],[2,3],[3,4],[4,5],[3,6],[6,7]];
-    links.forEach(([a, b], i) => {
-      const l = document.createElementNS(NS, "line");
-      l.setAttribute("x1", pts[a][0]); l.setAttribute("y1", pts[a][1]);
-      l.setAttribute("x2", pts[b][0]); l.setAttribute("y2", pts[b][1]);
-      l.setAttribute("class", "sm-line");
-      const len = Math.hypot(pts[a][0]-pts[b][0], pts[a][1]-pts[b][1]);
-      l.style.strokeDasharray = len; l.style.strokeDashoffset = len;
-      l.style.transition = "stroke-dashoffset 1.2s var(--ease) " + (0.5 + i*0.13) + "s";
-      svg.appendChild(l); smLines.push(l);
+    let li = 0, si = 0;
+    FACE.forEach((group) => {
+      const p = group.pts;
+      const segCount = group.loop ? p.length : p.length - 1;
+      for (let k = 0; k < segCount; k++) {
+        const a = p[k], b = p[(k + 1) % p.length];
+        const l = document.createElementNS(NS, "line");
+        l.setAttribute("x1", a[0]); l.setAttribute("y1", a[1]);
+        l.setAttribute("x2", b[0]); l.setAttribute("y2", b[1]);
+        l.setAttribute("class", "sm-line");
+        const len = Math.hypot(a[0]-b[0], a[1]-b[1]);
+        l.style.strokeDasharray = len; l.style.strokeDashoffset = len;
+        l.style.transition = "stroke-dashoffset 1s var(--ease) " + (0.4 + li*0.045) + "s";
+        svg.appendChild(l); smLines.push(l); li++;
+      }
+      p.forEach((pt) => {
+        const c = document.createElementNS(NS, "circle");
+        c.setAttribute("cx", pt[0]); c.setAttribute("cy", pt[1]); c.setAttribute("r", 2.6);
+        c.setAttribute("class", "sm-star");
+        c.style.opacity = "0"; c.style.transition = "opacity .7s var(--ease) " + (0.2 + si*0.03) + "s";
+        svg.appendChild(c); smStars.push(c); si++;
+      });
     });
-    pts.forEach((p, i) => {
-      const c = document.createElementNS(NS, "circle");
-      c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 3.4);
-      c.setAttribute("class", "sm-star");
-      c.style.opacity = "0"; c.style.transition = "opacity .8s var(--ease) " + (0.2 + i*0.12) + "s";
-      svg.appendChild(c); smStars.push(c);
-    });
-    const cs = document.createElementNS(NS, "circle");
-    cs.setAttribute("cx", 300); cs.setAttribute("cy", 168); cs.setAttribute("r", 6);
-    cs.setAttribute("class", "sm-star sun");
-    cs.style.opacity = "0"; cs.style.transition = "opacity 1s var(--ease) 1.7s";
-    svg.appendChild(cs); smStars.push(cs);
     const label = document.createElementNS(NS, "text");
-    label.setAttribute("x", 300); label.setAttribute("y", 150);
+    label.setAttribute("x", 200); label.setAttribute("y", 410);
     label.setAttribute("text-anchor", "middle"); label.setAttribute("class", "sm-label");
     label.textContent = CONFIG.friendName;
-    label.style.opacity = "0"; label.style.transition = "opacity 1s var(--ease) 2.1s";
+    label.style.opacity = "0"; label.style.transition = "opacity 1.2s var(--ease) 2.4s";
     svg.appendChild(label); smStars.push(label);
   }
   function showStarmap() {

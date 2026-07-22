@@ -40,7 +40,7 @@ const CONFIG = {
 
   // Closing star map (a constellation named for your friend)
   starmapEyebrow: "GÖKYÜZÜNDE, SENİN İÇİN",
-  starmapCaption: "Bulduğun her anı bir yıldıza dönüştü. Hepsi birlikte, artık gökyüzünde senin takımyıldızın.",
+  starmapCaption: "Yıldızları birleştirdim — ortaya yine senin yüzün çıktı. Çünkü benim evrenimin merkezi sensin.",
   starmapClose:   "Her hayatta, yine sen.",
 
   // Telescope / camera moment
