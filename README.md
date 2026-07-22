@@ -1,161 +1,128 @@
-# 🌅 Find Your Sunshine
+# 🌌 Find Your Sunshine — an astronomical journey
 
-A cinematic, interactive birthday gift — somewhere between a short film and a
-game. The visitor opens a **dark screen** and explores with a warm light that
-follows their cursor (or finger). Hidden in the darkness are whispered notes and
-photo-memories. Finding them all triggers a slow **sunrise**, a **rose** opening
-in the light, a handwritten **letter**, and a birthday **finale**.
+A cinematic, interactive birthday gift. The visitor opens a **dark universe**
+with a single sun and floats through space, visiting a **planet for each chapter
+of a friendship**. Every memory discovered brings more light — stars, nebulae,
+the sun itself — until the whole galaxy is alive. When every chapter is found,
+the sun unlocks and everything resolves into one message:
 
-> _“Turns out, you were always the light.”_
+> _“Sen bana hep gülüm dedin. Ama her gülün açmak için bir güneşe ihtiyacı vardır.
+> Ben senin gülünsem, sen de hep benim güneşim olacaksın.”_
 
-Built with plain **HTML + CSS + vanilla JavaScript** — no build step, no
-frameworks. It runs by just opening `index.html`, and deploys to GitHub Pages,
-Netlify, or Vercel with zero configuration.
+Built with **HTML + CSS + vanilla JavaScript + Three.js** (bundled locally, no
+build step). Deploys to GitHub Pages / Netlify / Vercel as static files.
 
 ---
 
-## ✨ The experience
+## ✨ The journey
 
 | Scene | What happens |
 |------|---------------|
-| **0 · Intro** | A tiny spark in the dark: _“There is a light hidden somewhere. Find it.”_ |
-| **1–3 · The dark field** | A lantern follows the pointer/finger; whispers glow and 7 memory-photos bloom from blur into warmth as you find them. |
-| **4 · Sunrise** | Once every memory is found, a slow 6–8s dawn rises with the reveal lines. |
-| **5 · Rose** | A rose (SVG, never a filtered face) opens in the sun. _“If I am your rose, you will always be my sun.”_ |
-| **6 · Letter** | A full-screen letter opens line by line. |
-| **7 · Finale** | _“Happy Birthday, My Sunshine.”_ + a “one last surprise”. |
+| **Intro** | Darkness, one bright star: _“Işığı takip et.”_ Tap it to begin. |
+| **Travel** | A real 3D solar system. **Drag** to rotate, **scroll/pinch** to zoom, **tap a planet** to fly to it and reveal its memory (photo + words). |
+| **Discovery** | Each visit lights another star of progress and brightens the universe. |
+| **Sun** | Locked until every chapter is found — then it unlocks and glows. |
+| **Finale** | The camera flies into the sun; the most special photo appears inside the light; the rose→sun lines fade in; a **wish becomes a new star**, then the birthday message. |
 
-Small **easter eggs**: type `SUN` anywhere, click the rising sun 5×, tap the
-`zzz` in the corner, or double-tap an opened photo. 💛
+Secret: type **SUN** or **GÜNEŞ** anywhere for a shooting star. ✨
 
 ---
 
 ## 📂 File structure
 
 ```text
-/index.html          → markup & scene scaffolding
-/css/style.css       → all styling, the torch effect, animations, responsive
-/js/memories.js      → ⭐ ALL your content: names, photos, notes, letter
-/js/audio.js         → generated ambience + optional music + sound effects
-/js/main.js          → the engine (light, discovery, scenes, easter eggs)
-/assets/images/      → put your photos here  (photo-1.jpg … photo-7.jpg)
-/assets/audio/       → optional background song
-/assets/icons/       → optional icons
+/index.html            → markup & overlays (intro, panel, letter, finale)
+/css/style.css         → all styling for the UI floating over the 3D canvas
+/js/content.js         → ⭐ ALL your content: names, chapters, letter, messages
+/js/universe.js        → the Three.js engine (universe, camera, finale)
+/js/audio.js           → generated ambience + optional music + sound effects
+/js/vendor/three.min.js→ Three.js (bundled so no CDN is needed)
+/assets/images/        → your photos (photo-1 … photo-5)
+/assets/audio/         → optional background song
 ```
 
 ---
 
-## 🖊️ How to make it yours
+## 🖊️ How to make it yours — everything is in `js/content.js`
 
-**Everything you normally edit lives in `js/memories.js`.** Open it — it is fully
-commented.
-
-### 1) Your friend's name & the main messages
-At the top of `memories.js`, edit `CONFIG`:
+### 1) Names & the main messages
 ```js
-friendName: "[ARKADAŞININ ADI]",   // ← your friend's name
+friendName: "Gözde",
 fromName:   "Gülheda",
 ```
-`CONFIG` also holds the intro line, the sunrise/rose lines, the finale text, and
-the Turkish messages. Change any string you like.
+`CONFIG` also holds the intro text, the four **finale lines** (the rose→sun
+message), the wish prompts and the birthday text. Edit any string.
 
-### 2) The photos
-Drop your real images into `assets/images/` and point each memory at them:
+### 2) The chapters (planets)
+Each planet is one chapter. Edit its name, colour, photo and words:
 ```js
-const memories = [
-  { image: "assets/images/photo-1.jpg", title: "The café",
-    text: "The simplest days became memories because you were there.",
-    alt: "The two of us at a café.", x: 20, y: 30 },
-  // ...
-];
+{
+  key: "beginning",
+  name: "Başlangıç",
+  color: "#E8853A",          // the planet's colour
+  size: 1.05, orbit: 15, speed: 0.10, phase: 0.2,
+  kind: "photo",             // "photo" | "text" | "letter"
+  photo: "assets/images/photo-1.png",
+  alt:  "İkimiz bir kafede.",
+  text: "Her şeyin başladığı gün...",
+},
 ```
-- `x` / `y` are **screen percentages (0–100)** — where the memory hides.
-- `alt` is the accessibility description (please keep it meaningful).
-- **Missing a photo?** A warm placeholder shows automatically, so the site never
-  breaks — just replace the file later and it appears.
+- `kind: "photo"` shows a photo + words · `"text"` shows only words ·
+  `"letter"` shows a button that opens the letter.
+- Add or remove planets freely — the orbits and progress stars adapt.
+- **Missing a photo?** A warm placeholder shows automatically, so nothing breaks.
 
-> **About the photos:** they are only cropped, scaled and colour-graded by CSS
-> (grayscale → warm as they reveal). Faces are **never** altered or regenerated.
+> Photos are only cropped / colour-graded by CSS — faces are **never** altered.
 
-### 3) The letter
-Also in `memories.js`, edit the `LETTER` array — one line per entry, empty
-strings (`""`) add spacing:
-```js
-const LETTER = [
-  "Canım güneşim,",
-  "",
-  "Sen bana hep gülüm dedin. ...",
-];
-```
+### 3) The photos
+Drop images into `assets/images/` and point each chapter's `photo` at them.
+Current mapping: `photo-1` café · `photo-2` outside · `photo-3` flowers ·
+`photo-4` night · `photo-5` the solo portrait (also shown inside the sun at the
+end — set by `CONFIG.sunPhoto`).
 
-### 4) The song (optional)
-The site already generates a soft ambient bed, so **music is optional**. To add a
-track, drop a file in `assets/audio/` and set the path in `CONFIG`:
-```js
-musicSrc: "assets/audio/song.mp3",
-```
-Leave it as `""` to use only the generated ambience. Sound starts after the
-first interaction (browser rule) and can be muted anytime via the top-right
-button.
+### 4) The letter
+Edit the `LETTER` array — one line per entry, `""` adds spacing.
+
+### 5) The song (optional)
+The site already generates soft ambience. To add a track, drop a file in
+`assets/audio/` and set `CONFIG.musicSrc = "assets/audio/song.mp3"`.
 
 ---
 
 ## ▶️ Run it locally
 
-Because the site loads images and scripts, use a tiny local server (opening the
-file directly also works, but a server avoids any browser file restrictions):
-
+Use a small static server (needed so the browser can load the local scripts):
 ```bash
-# Python 3
-python3 -m http.server 8000
-# then open  http://localhost:8000
-
-# …or Node
-npx serve .
+python3 -m http.server 8000      # then open http://localhost:8000
+# or:  npx serve .
 ```
-
-No dependencies, no build step.
-
----
-
-## 🚀 Publish it
-
-### GitHub Pages
-1. Push this folder to a GitHub repo.
-2. Repo **Settings → Pages** → *Build from a branch* → pick your branch, folder `/ (root)`.
-3. Your site goes live at `https://<username>.github.io/<repo>/`.
-
-### Netlify
-1. Drag-and-drop the project folder onto <https://app.netlify.com/drop>, **or**
-2. Connect the repo — no build command needed, publish directory `/`.
-
-### Vercel
-1. `npm i -g vercel` → `vercel` in the project folder, **or**
-2. Import the repo on <https://vercel.com>. Framework preset: **Other**. No build
-   command, output directory `./`.
+No dependencies, no build step. Three.js is already in `js/vendor/`.
 
 ---
 
-## 📱 Testing on mobile
+## 🚀 Publish
 
-- The light follows **touch** instead of the mouse; tap or drag to explore.
-- Best tested at phone widths (e.g. 390×844 / 393×852 / 430×932).
-- Quick way: run the local server, find your computer's LAN IP, and open
-  `http://<your-ip>:8000` on your phone (same Wi-Fi). Or use your browser's
-  device-emulation / responsive mode.
+- **GitHub Pages:** Settings → Pages → deploy from your branch, folder `/ (root)`.
+- **Netlify:** drag the folder onto app.netlify.com/drop, or connect the repo
+  (no build command, publish dir `/`).
+- **Vercel:** `vercel` in the folder, framework preset **Other**, no build.
 
 ---
 
-## ♿ Accessibility & performance
+## 📱 Mobile & performance
 
-- Every photo has a meaningful `alt`; memory orbs are focusable buttons and open
-  with **Enter/Space**.
-- The letter modal has a **focus trap** and closes with **ESC** or the backdrop.
-- The sound toggle is always visible.
-- Respects **`prefers-reduced-motion`**: heavy animations and particles are
-  reduced or skipped.
-- Photos load on demand; animations use `transform`/`opacity`; particle counts
-  stay modest for low-power devices.
+- Touch to rotate, tap planets, pinch to zoom.
+- Pixel ratio is capped and star/particle counts drop on touch devices.
+- Respects **`prefers-reduced-motion`**, and falls back to a simple view if a
+  device has no WebGL — the gift never becomes a blank screen.
+
+---
+
+## ♿ Accessibility
+
+- Every photo has a meaningful `alt`; the letter modal is focus-trapped and
+  closes with **Esc**; the sound toggle is always visible; **Esc** also leaves a
+  planet.
 
 ---
 
