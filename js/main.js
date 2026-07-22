@@ -31,6 +31,7 @@
     introLine:    $("#introLine"),
     introHint:    $("#introHint"),
     field:        $("#field"),
+    fieldDust:    $("#fieldDust"),
     whispers:     $("#whispers"),
     memoriesLayer:$("#memoriesLayer"),
     nudge:        $("#nudge"),
@@ -139,8 +140,69 @@
     state.ty += (state.py - state.ty) * lerp;
     document.documentElement.style.setProperty("--lx", state.tx + "px");
     document.documentElement.style.setProperty("--ly", state.ty + "px");
-    if (state.scene === "field") illuminate();
+    if (state.scene === "field") { illuminate(); drawDust(); }
     requestAnimationFrame(animateTorch);
+  }
+
+  /* ============================================ AMBIENT DUST (Canvas) */
+  // Slow-drifting motes of warm light give the darkness cinematic depth.
+  // Dust caught in the torch beam brightens, as if the light stirs it.
+  const dust = { ctx: null, parts: [], w: 0, h: 0, ready: false };
+
+  function initDust() {
+    if (dust.ready) return;
+    const c = el.fieldDust;
+    dust.ctx = c.getContext ? c.getContext("2d") : null;
+    if (!dust.ctx) return;
+    sizeDust();
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    // Fewer particles on touch / low-power devices; none if reduced motion.
+    const count = prefersReduced ? 0 : (coarse ? 24 : 46);
+    dust.parts = Array.from({ length: count }, () => spawnDust(true));
+    dust.ready = true;
+  }
+
+  function sizeDust() {
+    const c = el.fieldDust;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dust.w = window.innerWidth; dust.h = window.innerHeight;
+    c.width = Math.round(dust.w * dpr); c.height = Math.round(dust.h * dpr);
+    if (dust.ctx) dust.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function spawnDust(anywhere) {
+    return {
+      x: Math.random() * dust.w,
+      y: anywhere ? Math.random() * dust.h : dust.h + 10,
+      r: Math.random() * 1.5 + 0.5,
+      vy: -(Math.random() * 0.16 + 0.04),   // drift gently upward
+      sway: Math.random() * 0.6 + 0.2,
+      phase: Math.random() * Math.PI * 2,
+      tw: Math.random() * 0.018 + 0.006,
+      a: Math.random() * 0.45 + 0.18,
+    };
+  }
+
+  function drawDust() {
+    if (!dust.ready || !dust.ctx || !dust.parts.length) return;
+    if (dust.w !== window.innerWidth || dust.h !== window.innerHeight) sizeDust();
+    const ctx = dust.ctx;
+    ctx.clearRect(0, 0, dust.w, dust.h);
+    const R = 230;                            // torch influence radius
+    for (const p of dust.parts) {
+      p.phase += p.tw;
+      p.y += p.vy;
+      p.x += Math.sin(p.phase) * p.sway * 0.35;
+      if (p.y < -12) Object.assign(p, spawnDust(false));
+      const dx = p.x - state.tx, dy = p.y - state.ty;
+      const near = Math.hypot(dx, dy);
+      const glow = near < R ? (1 - near / R) : 0;
+      const alpha = Math.min(1, p.a * (0.5 + 0.5 * Math.sin(p.phase)) + glow * 0.75);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r + glow * 1.3, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(246, 216, 137, " + alpha.toFixed(3) + ")";
+      ctx.fill();
+    }
   }
 
   // Reveal whispers & orbs within the light radius.
@@ -214,6 +276,7 @@
     if (state.scene !== "intro") return;
     setScene("field");
     el.sceneIntro.classList.remove("is-active");
+    initDust();
     resetHintTimer();
   }
 
@@ -663,7 +726,7 @@
     el.eggZzz.addEventListener("click", onZzz);
     document.addEventListener("keydown", onKeyType);
 
-    window.addEventListener("resize", sizeCanvas, { passive: true });
+    window.addEventListener("resize", () => { sizeCanvas(); if (dust.ready) sizeDust(); }, { passive: true });
 
     // Reduced motion: don't auto-open from a resting light (that relies on dwell),
     // orbs still work via click/tap/keyboard just fine.

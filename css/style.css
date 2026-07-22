@@ -186,7 +186,18 @@ body.torch-on .torch { opacity: 1; }
 }
 body[data-scene="field"] .field { opacity: 1; visibility: visible; pointer-events: auto; }
 
-/* Whispers — faint lines that glow when the light passes over them. */
+/* Ambient dust — slow drifting motes of light for cinematic depth (Canvas). */
+.field__dust {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: calc(0.35 + var(--ambient) * 0.5);
+  transition: opacity 1.2s var(--ease);
+}
+.field__whispers, .field__memories { position: absolute; inset: 0; z-index: 2; }
+
+/* Whispers — hidden in the dark, they glow ONLY when the light passes over. */
 .whisper {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -196,39 +207,57 @@ body[data-scene="field"] .field { opacity: 1; visibility: visible; pointer-event
   font-size: clamp(1.05rem, 3.4vw, 1.7rem);
   line-height: 1.35;
   color: var(--cream);
-  opacity: .04;                     /* nearly invisible in the dark */
-  filter: blur(2px);
-  transition: opacity .5s var(--ease), filter .5s var(--ease), text-shadow .5s var(--ease);
+  opacity: 0;                       /* invisible until the light finds it */
+  filter: blur(3px);
+  transition: opacity .6s var(--ease), filter .6s var(--ease), text-shadow .6s var(--ease);
   text-align: center;
   pointer-events: none;
 }
 .whisper.is-lit {
-  opacity: .92; filter: blur(0);
-  text-shadow: 0 0 22px rgba(246,216,137,.35);
+  opacity: .95; filter: blur(0);
+  text-shadow: 0 0 26px rgba(246,216,137,.45);
 }
 
-/* Memory orbs — motes of light hiding photos. */
+/* Memory orbs — warm glowing dust that hides a photo. They read as light,
+   never as dark dots: a bright core, a soft golden bloom, gently drifting. */
 .orb {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 22px; height: 22px;
+  width: 16px; height: 16px;
   border: 0; padding: 0;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255,246,222,.95), rgba(232,176,74,.5) 60%, transparent 75%);
-  box-shadow: 0 0 14px 4px rgba(232,176,74,.35);
-  opacity: .28;
+  background: radial-gradient(closest-side,
+    rgba(255, 250, 236, 1) 0%,
+    rgba(246, 216, 137, .9) 42%,
+    rgba(232, 176, 74, .4) 70%,
+    transparent 80%);
+  box-shadow:
+    0 0 16px 5px rgba(246, 216, 137, .5),
+    0 0 42px 16px rgba(232, 176, 74, .28);
+  mix-blend-mode: screen;           /* blends into the dark like real light */
+  opacity: .68;
   animation: mote 6s ease-in-out infinite;
-  transition: opacity .5s var(--ease), transform .5s var(--ease);
+  transition: opacity .6s var(--ease), transform .6s var(--ease), box-shadow .6s var(--ease);
   cursor: none;
 }
-.orb:focus-visible { outline: 2px solid var(--honey); outline-offset: 6px; opacity: 1; }
-.orb.is-near { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
+.orb:focus-visible { outline: 2px solid var(--honey); outline-offset: 8px; opacity: 1; }
+.orb.is-near {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.55);
+  box-shadow: 0 0 26px 8px rgba(246,216,137,.7), 0 0 64px 22px rgba(232,176,74,.4);
+}
 .orb.is-found {
-  opacity: .5;
-  background: radial-gradient(closest-side, rgba(221,167,160,.9), transparent 72%);
+  opacity: .6;
+  background: radial-gradient(closest-side, rgba(221,167,160,.95), rgba(221,167,160,.3) 55%, transparent 75%);
+  box-shadow: 0 0 14px 4px rgba(221,167,160,.4);
   animation: none;
 }
-@keyframes mote { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-52%) scale(1.12); } }
+/* A gentle firefly drift so the motes feel alive, not pinned. */
+@keyframes mote {
+  0%,100% { transform: translate(-50%, -50%) scale(1); }
+  30%     { transform: translate(-53%, -54%) scale(1.14); }
+  65%     { transform: translate(-47%, -49%) scale(.95); }
+}
 
 /* --------------------------------------------- 7) PROGRESS + MEMORY VIEW */
 .progress {
