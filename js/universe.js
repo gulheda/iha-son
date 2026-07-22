@@ -246,8 +246,8 @@
     });
     return new THREE.Points(geo, mat);
   }
-  const starsFar  = makeStars(coarse ? 800 : 1500, 1600, 6, 0xffffff);
-  const starsNear = makeStars(coarse ? 260 : 520, 900, 4, 0xfff2cf);
+  const starsFar  = makeStars(coarse ? 900 : 1800, 1600, 6, 0xffffff);
+  const starsNear = makeStars(coarse ? 500 : 1100, 900, 4, 0xfff2cf);
   scene.add(starsFar, starsNear);
   // Extra light appears with discovery: a hidden layer that fades in.
   const starsBloom = makeStars(coarse ? 500 : 1100, 700, 7, 0xffe6b0);
@@ -351,25 +351,6 @@
   }
   const belt = makeBelt(40, 43.6, coarse ? 400 : 850);
   scene.add(belt);
-
-  /* ------------------------------------------------ BACKGROUND PLANETS */
-  // Distant little worlds drifting in the deep — the sky is full of planets.
-  const bgGroup = new THREE.Group(); scene.add(bgGroup);
-  const bgColors = ["#c98b84","#6e57a6","#3e7c9c","#4e8b77","#d9a23e","#8a6f5a","#9fb4d4","#C46B2E"];
-  const bgCount = coarse ? 9 : 15;
-  for (let i = 0; i < bgCount; i++) {
-    const col = bgColors[i % bgColors.length];
-    const r = 3 + Math.random() * 7;
-    const tex = planetTexture(col, Math.random() < 0.5 ? "gas" : "rocky");
-    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 24),
-      new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0,
-        emissive: new THREE.Color(col).multiplyScalar(0.05) }));
-    const dist = 240 + Math.random() * 380;
-    const th = Math.random() * Math.PI * 2, ph = Math.acos(2*Math.random() - 1);
-    m.position.set(dist*Math.sin(ph)*Math.cos(th), (Math.random()-0.5)*300, dist*Math.sin(ph)*Math.sin(th));
-    m.userData.spin = 0.04 + Math.random() * 0.14;
-    bgGroup.add(m);
-  }
 
   /* ----------------------------------------------------- HIDDEN SECRET STARS */
   // Hidden easter-egg worlds: small planets that reveal a message when tapped.
@@ -1101,9 +1082,6 @@
       m.rotation.y += dt * (m.userData.spin || 0.3);
       if (!m.userData.found) { const s = 1 + Math.sin(state.time * 2 + m.position.x) * 0.06; m.scale.set(s, s, s); }
     }
-    // background planets drift
-    bgGroup.rotation.y += dt * 0.004;
-    for (const m of bgGroup.children) m.rotation.y += dt * (m.userData.spin || 0.1);
     // telescope star pulse
     if (scopeMesh.material.opacity > 0.01) {
       const ss = 7 * (1 + Math.sin(state.time * 1.6) * 0.18);
