@@ -67,53 +67,44 @@ const CONFIG = {
    You can add or remove entries — the progress dots adapt automatically.        */
 const memories = [
   {
+    // photo-1.jpg  →  the CAFÉ photo (the two of you at a table with iced drinks)
     image: "assets/images/photo-1.jpg",
-    title: "The first light",
-    text:  "Some days are ordinary until you remember who you spent them with.",
-    alt:   "A quiet, warm photo of the two of us.",
-    x: 50, y: 34,
-  },
-  {
-    image: "assets/images/photo-2.jpg",
     title: "The café",
     text:  "The simplest days became memories because you were there.",
-    alt:   "The two of us together at a café.",
-    x: 20, y: 30,
+    alt:   "The two of us at a café with our drinks.",
+    x: 50, y: 30,
   },
   {
-    image: "assets/images/photo-3.jpg",
+    // photo-2.jpg  →  the OUTDOOR selfie (sunny day in the park, sunglasses)
+    image: "assets/images/photo-2.jpg",
     title: "Out in the world",
     text:  "Every place felt brighter with you.",
-    alt:   "A selfie of us outside.",
-    x: 78, y: 24,
+    alt:   "A sunny selfie of us outside in the park.",
+    x: 22, y: 33,
   },
   {
-    image: "assets/images/photo-4.jpg",
-    title: "On the way",
-    text:  "You sleep through half our adventures and still remain my favorite part of them.",
-    alt:   "You fast asleep on the bus.",
-    x: 30, y: 66,
-  },
-  {
-    image: "assets/images/photo-5.jpg",
+    // photo-3.jpg  →  the FLOWERS photo (mirror selfie holding the little pink flowers)
+    image: "assets/images/photo-3.jpg",
     title: "The flowers",
     text:  "You gave me flowers. You became the sunlight.",
-    alt:   "A photo with handmade flowers.",
-    x: 68, y: 62,
+    alt:   "The two of us in a mirror, holding little pink flowers.",
+    x: 76, y: 26,
   },
   {
-    image: "assets/images/photo-6.jpg",
+    // photo-4.jpg  →  the NIGHT-OUT photo (Gözde in the fur coat under the string lights)
+    image: "assets/images/photo-4.jpg",
     title: "The warm night",
     text:  "Even the darkest places felt warm with you.",
-    alt:   "The two of us out at night.",
-    x: 14, y: 54,
+    alt:   "Gözde under warm string lights on a night out.",
+    x: 30, y: 64,
   },
   {
-    image: "assets/images/photo-7.jpg",
-    title: "A thousand versions",
-    text:  "A thousand versions of us, and I would choose this friendship every time.",
-    alt:   "The two of us together in a mirror.",
-    x: 86, y: 58,
+    // photo-5.jpg  →  the SOLO portrait of Gözde (this also becomes the finale backdrop)
+    image: "assets/images/photo-5.jpg",
+    title: "The light all along",
+    text:  "I kept looking for the light — and there you were.",
+    alt:   "A portrait of Gözde in the soft daylight.",
+    x: 72, y: 62,
   },
 ];
 
