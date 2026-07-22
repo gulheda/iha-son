@@ -313,15 +313,17 @@ body[data-scene="travel"] .progress { opacity: 1; }
 
 /* ---------------------------------------------------------- CONFETTI */
 .confetti {
-  position: fixed; z-index: 120; top: 44%; left: 50%;
-  width: 8px; height: 8px; border-radius: 2px; pointer-events: none; opacity: 0;
+  position: fixed; z-index: 130; top: 42%; left: 50%;
+  width: 13px; height: 8px; border-radius: 2px; pointer-events: none; opacity: 0;
   transform: translate(-50%, -50%);
-  animation: confetti 2.3s cubic-bezier(.2,.6,.3,1) forwards;
+  box-shadow: 0 0 8px rgba(246,216,137,.55);
+  animation: confetti 2.9s cubic-bezier(.2,.6,.3,1) forwards;
 }
 @keyframes confetti {
   0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  15%  { opacity: 1; }
   100% { opacity: 0;
-    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px) + 42vh)) rotate(var(--rot, 360deg)); }
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px) + 46vh)) rotate(var(--rot, 360deg)); }
 }
 .finale__camBtn { margin-top: 26px; background: rgba(255,255,255,.35); color: #4a2c12; border-color: rgba(120,70,20,.45); }
 .finale__camBtn:hover { background: rgba(255,255,255,.55); border-color: #9a3d0e; }
@@ -444,4 +446,6 @@ body[data-scene="travel"] .progress { opacity: 1; }
     animation-duration: .001ms !important; animation-iteration-count: 1 !important;
     transition-duration: .3s !important;
   }
+  /* the birthday confetti is an explicit celebration — keep it animating */
+  .confetti { animation-duration: 2.9s !important; }
 }

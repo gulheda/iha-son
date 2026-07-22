@@ -449,21 +449,21 @@
   }
   // Golden confetti burst (used at the birthday reveal and after a photo).
   function confettiBurst() {
-    if (prefersReduced) return;
-    const colors = ["#E8B04A", "#F6D889", "#FFF3D0", "#DDA7A0", "#FFFFFF"];
-    for (let i = 0; i < 80; i++) {
+    // Explicit birthday celebration — fires even under reduced motion.
+    const colors = ["#E8B04A", "#F6D889", "#FFF3D0", "#DDA7A0", "#FFFFFF", "#E8853A"];
+    for (let i = 0; i < 120; i++) {
       const d = document.createElement("div");
       d.className = "confetti";
       d.style.background = colors[i % colors.length];
-      const ang = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 300;
+      const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 380;
       d.style.setProperty("--tx", Math.cos(ang) * dist + "px");
-      d.style.setProperty("--ty", (Math.sin(ang) * dist - 60) + "px");
-      d.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
-      d.style.animationDelay = (Math.random() * 0.18) + "s";
-      const sz = 6 + Math.random() * 7;
-      d.style.width = d.style.height = sz + "px";
+      d.style.setProperty("--ty", (Math.sin(ang) * dist - 130) + "px");
+      d.style.setProperty("--rot", (Math.random() * 900 - 450) + "deg");
+      d.style.animationDelay = (Math.random() * 0.25) + "s";
+      const w = 10 + Math.random() * 10;
+      d.style.width = w + "px"; d.style.height = (w * 0.6) + "px";
       document.body.appendChild(d);
-      setTimeout(() => d.remove(), 2700);
+      setTimeout(() => d.remove(), 3400);
     }
   }
   function spawnPetals() {
