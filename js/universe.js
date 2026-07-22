@@ -17,6 +17,7 @@
   "use strict";
 
   const { CONFIG, PLANETS, LETTER } = window.SUNSHINE;
+  const SECRETS = window.SUNSHINE.SECRETS || [];
   const Sound = window.SUNSHINE.Sound;
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -57,6 +58,7 @@
     birthday:   $("#birthday"),
     bTitle:     $("#bTitle"),
     bSub:       $("#bSub"),
+    secretToast:$("#secretToast"),
   };
 
   /* ------------------------------------------------- fill the static copy */
@@ -315,6 +317,108 @@
     PLANETS[i]._pivot = pivot; PLANETS[i]._mesh = mesh;
   });
 
+  /* --------------------------------------------------------- ASTEROID BELT */
+  function makeBelt(inner, outer, count) {
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const r = inner + Math.random() * (outer - inner);
+      const a = Math.random() * Math.PI * 2;
+      pos[i*3]   = Math.cos(a) * r;
+      pos[i*3+1] = (Math.random() - 0.5) * 1.6;
+      pos[i*3+2] = Math.sin(a) * r;
+    }
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.45, color: 0x8c7a60,
+      transparent: true, opacity: 0.75, depthWrite: false, sizeAttenuation: true });
+    return new THREE.Points(geo, mat);
+  }
+  const belt = makeBelt(40, 43.6, coarse ? 400 : 850);
+  scene.add(belt);
+
+  /* ----------------------------------------------------- HIDDEN SECRET STARS */
+  const secretMeshes = [];
+  SECRETS.forEach((s, i) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, color: 0xfff0cf,
+      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+    sp.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    sp.scale.set(5, 5, 1);
+    sp.userData = { secret: i, found: false };
+    scene.add(sp); secretMeshes.push(sp);
+  });
+
+  /* -------------------------------------------------------- SHOOTING STARS */
+  const shooters = [];
+  let nextShooter = 3;
+  function spawnShooter() {
+    const head = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, color: 0xffffff,
+      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    head.scale.set(4, 4, 1);
+    const trail = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xfff2cf,
+      transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false }));
+    trail.scale.set(34, 3.4, 1);
+    const side = Math.random() < 0.5 ? -1 : 1;
+    head.position.set((Math.random()*2-1)*260, 60 + Math.random()*120, -180 - Math.random()*220);
+    trail.position.copy(head.position);
+    const vel = new THREE.Vector3((-side)*(60 + Math.random()*50), -(20 + Math.random()*30), 20 + Math.random()*30);
+    scene.add(head, trail);
+    shooters.push({ head, trail, vel, life: 0, ttl: 2.2 + Math.random()*1.2 });
+  }
+  const _sa = new THREE.Vector3(), _sb = new THREE.Vector3();
+  function updateShooters(dt) {
+    if ((state.scene === "travel" || state.scene === "focus") && !prefersReduced) {
+      nextShooter -= dt;
+      if (nextShooter <= 0) { spawnShooter(); nextShooter = 5 + Math.random()*8; }
+    }
+    for (let i = shooters.length - 1; i >= 0; i--) {
+      const s = shooters[i]; s.life += dt;
+      s.head.position.addScaledVector(s.vel, dt);
+      s.trail.position.copy(s.head.position);
+      _sa.copy(s.head.position).project(camera);
+      _sb.copy(s.head.position).addScaledVector(s.vel, -0.1).project(camera);
+      s.trail.material.rotation = Math.atan2((_sa.y-_sb.y)*window.innerHeight, (_sa.x-_sb.x)*window.innerWidth);
+      const k = s.life / s.ttl, fade = k < 0.2 ? k/0.2 : 1 - (k-0.2)/0.8;
+      s.head.material.opacity = Math.max(0, fade);
+      s.trail.material.opacity = Math.max(0, fade*0.7);
+      if (s.life >= s.ttl) { scene.remove(s.head, s.trail); shooters.splice(i, 1); }
+    }
+  }
+
+  /* ---------------------------------------------------- secret reveal + petals */
+  let secretTimer = null;
+  function revealSecret(i, sprite) {
+    if (!sprite.userData.found) {
+      sprite.userData.found = true;
+      sprite.material.color.set(0xffe6b0);
+      tween(sprite.scale, { x: 8, y: 8 }, 0.6, easeOut);
+      Sound && Sound.chime();
+    }
+    el.secretToast.textContent = SECRETS[i].text;
+    el.secretToast.classList.add("show");
+    el.secretToast.setAttribute("aria-hidden", "false");
+    clearTimeout(secretTimer);
+    secretTimer = setTimeout(() => {
+      el.secretToast.classList.remove("show");
+      el.secretToast.setAttribute("aria-hidden", "true");
+    }, 4500);
+  }
+  function spawnPetals() {
+    if (prefersReduced) return;
+    for (let i = 0; i < 16; i++) {
+      const petal = document.createElement("div");
+      petal.className = "petal";
+      petal.style.left = (Math.random()*100) + "vw";
+      petal.style.setProperty("--drift", (Math.random()*160 - 80) + "px");
+      const dur = 5 + Math.random()*4;
+      petal.style.animationDuration = dur + "s";
+      petal.style.animationDelay = (Math.random()*2) + "s";
+      const sz = (10 + Math.random()*10);
+      petal.style.width = petal.style.height = sz + "px";
+      document.body.appendChild(petal);
+      setTimeout(() => petal.remove(), (dur + 2.5) * 1000);
+    }
+  }
+
   /* ============================================================ TWEENS */
   const tweens = [];
   function tween(obj, to, dur, ease, onDone) {
@@ -385,10 +489,13 @@
         state.cam.tPhi = clamp(state.cam.tPhi - dy * 0.005, 0.35, Math.PI - 0.35);
       }
     } else if (state.focused < 0) {
-      // hover highlight
+      // hover highlight (planets, then hidden stars)
       const hit = pickPlanet();
-      const idx = hit ? (hit.userData.index != null ? hit.userData.index : "sun") : -1;
       updateHover(hit);
+      if (!hit && secretMeshes.length) {
+        raycaster.setFromCamera(ndc, camera);
+        if (raycaster.intersectObjects(secretMeshes, false)[0]) el.canvas.classList.add("hovering");
+      }
     }
   }
   function onUp(e) {
@@ -397,6 +504,12 @@
     if (state.moved) return;                       // a drag, not a tap
     if (state.focused >= 0) { unfocus(); return; } // tap anywhere outside the panel → back to orbit
     if (state.scene === "travel") {
+      // hidden stars first (small easter eggs), then planets
+      if (secretMeshes.length) {
+        raycaster.setFromCamera(ndc, camera);
+        const sHit = raycaster.intersectObjects(secretMeshes, false)[0];
+        if (sHit) { revealSecret(sHit.object.userData.secret, sHit.object); return; }
+      }
       const hit = pickPlanet();
       if (hit) {
         if (hit.userData.isSun && state.sunUnlocked) beginFinale();
@@ -501,6 +614,7 @@
     }
     el.panel.setAttribute("aria-hidden", "false");
     el.panel.classList.add("open");
+    if (p.petals) spawnPetals();
     setTimeout(() => el.panelClose.focus(), 60);
   }
   function closePanel() {
@@ -722,6 +836,15 @@
     starsFar.rotation.y  += dt * 0.005;
     starsNear.rotation.y -= dt * 0.008;
     starsBloom.rotation.y += dt * 0.006;
+    // asteroid belt + shooting stars
+    belt.rotation.y += dt * 0.02;
+    updateShooters(dt);
+    // hidden stars twinkle
+    for (const sp of secretMeshes) {
+      if (sp.userData.found) continue;
+      const s = 5 * (1 + Math.sin(state.time * 2 + sp.position.x) * 0.2);
+      sp.scale.set(s, s, 1);
+    }
 
     if (hovered >= 0 && state.focused < 0) positionLabel(planetMeshes[hovered]);
 
@@ -789,6 +912,7 @@
   if (location.search.indexOf("debug") >= 0) {
     window.__u = {
       start, focusPlanet, unfocus, beginFinale, state, PLANETS,
+      spawnShooter, revealSecret, secretMeshes, shooters,
       discoverAll() {
         PLANETS.forEach((_, i) => state.discovered.add(i));
         updateProgress(); evolve(); unlockSun();

@@ -121,8 +121,37 @@ const Sound = (() => {
     if (!ensureContext()) return;
     buildPad();
     buildWind();
+    buildPiano();
     buildMusic();
     started = true;
+  }
+
+  /* A soft, sparse piano — slow warm notes that drift over the pad. Routed
+     through the master gain, so muting silences it too. */
+  function pianoNote(freq, when, dur, gain) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    o.type = "triangle"; o.frequency.value = freq;
+    lp.type = "lowpass"; lp.frequency.value = 1500;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(gain, when + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(lp).connect(g).connect(master);
+    o.start(when); o.stop(when + dur + 0.05);
+    nodes.push(o);
+  }
+  const pianoScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33];
+  function buildPiano() {
+    function scheduleNext() {
+      if (!ctx) return;
+      const n = pianoScale[Math.floor(Math.random() * pianoScale.length)];
+      const now = ctx.currentTime + 0.05;
+      pianoNote(n, now, 2.6, 0.05);
+      if (Math.random() < 0.3) pianoNote(n * 1.5, now + 0.09, 2.2, 0.028);  // soft fifth
+      setTimeout(scheduleNext, 1900 + Math.random() * 2400);
+    }
+    scheduleNext();
   }
 
   /* Smoothly ramp the master gain. */

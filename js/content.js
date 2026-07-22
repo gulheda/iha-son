@@ -74,7 +74,7 @@ const PLANETS = [
   {
     key: "flowers",
     name: "Çiçekler",
-    color: "#C98B84", style: "rocky",
+    color: "#C98B84", style: "rocky", petals: true,
     size: 1.0, orbit: 29, speed: 0.056, phase: 2.4,
     kind: "photo",
     photo: "assets/images/photo-3.webp",
@@ -127,4 +127,15 @@ const LETTER = [
   "Seni çok seviyorum.",
 ];
 
-window.SUNSHINE = { CONFIG, PLANETS, LETTER };
+/* --------------------------------------------------------------- SECRETS
+   Hidden stars scattered through space — little easter eggs. Find one and a
+   short message appears. Write your own inside jokes / lines here (Turkish).
+   `pos` is where the star hides in space; leave these or move them around.     */
+const SECRETS = [
+  { pos: [-62,  38, -34], text: "Yol boyunca uyuyan sensin ama en güzel anılar hep seninle." },
+  { pos: [ 74, -26,  22], text: "Bizim o iç şakamız… (buraya kendi şakanızı yazabilirsin)" },
+  { pos: [ 26,  58, -78], text: "Bir gün mutlaka o yolculuğa birlikte çıkacağız." },
+];
+
+window.SUNSHINE = { CONFIG, PLANETS, LETTER, SECRETS };
+

@@ -283,6 +283,37 @@ body[data-scene="travel"] .progress { opacity: 1; }
 .finale__bTitle { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 8vw, 4rem); color: var(--cream); text-shadow: 0 0 40px rgba(232,176,74,.35); }
 .finale__bSub { margin-top: 14px; font-weight: 300; font-size: clamp(1rem,3.4vw,1.3rem); color: rgba(247,241,231,.85); max-width: 640px; }
 
+/* ------------------------------------------------------ secret star toast */
+.secret-toast {
+  position: fixed; z-index: 75;
+  left: 50%; top: 16%; transform: translate(-50%, -10px);
+  padding: 14px 22px; max-width: min(84vw, 460px);
+  background: rgba(7,11,20,.82);
+  border: 1px solid rgba(246,216,137,.32);
+  border-radius: 16px; backdrop-filter: blur(8px);
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(1.05rem, 3.4vw, 1.35rem); line-height: 1.4;
+  color: var(--honey); text-align: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .5s var(--ease), transform .5s var(--ease), visibility .5s var(--ease);
+}
+.secret-toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+/* ------------------------------------------------------------ petal drift */
+.petal {
+  position: fixed; z-index: 65; top: -6vh;
+  width: 14px; height: 14px; pointer-events: none;
+  background: radial-gradient(circle at 30% 30%, #f3c9c3, #c98b84 70%);
+  border-radius: 60% 0 60% 0;
+  opacity: 0; will-change: transform, opacity;
+  animation: petalFall linear forwards;
+}
+@keyframes petalFall {
+  0%   { opacity: 0; transform: translateY(0) translateX(0) rotate(0deg); }
+  10%  { opacity: .9; }
+  100% { opacity: 0; transform: translateY(112vh) translateX(var(--drift, 40px)) rotate(540deg); }
+}
+
 /* --------------------------------------------------------------- buttons */
 .btn {
   font-family: var(--sans); font-weight: 400; font-size: clamp(.9rem, 3vw, 1rem);
