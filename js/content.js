@@ -22,14 +22,6 @@ const CONFIG = {
   // Shown when the sun is tapped before every planet is found
   sunLocked: "Güneşe ulaşmak için önce tüm gezegenleri keşfet",
 
-  // The final reveal, line by line (the heart of the whole site)
-  finaleLines: [
-    "Sen bana hep gülüm dedin.",
-    "Ama her gülün açmak için bir güneşe ihtiyacı vardır.",
-    "Ben senin gülünsem...",
-    "...sen de hep benim güneşim olacaksın.",
-  ],
-
   // Wish → becomes a star
   wishButton:   "Son bir sürpriz",
   wishPrompt:   "Evrene bir dilek gönder",

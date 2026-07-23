@@ -279,6 +279,11 @@ body[data-scene="travel"] .progress { opacity: 1; }
   opacity: 0; transition: opacity 2.4s var(--ease), transform 2.4s var(--ease);
 }
 .finale__photo.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+.finale__lower {
+  position: relative; z-index: 2; margin-top: 46vh;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  padding: 20px; width: 100%; max-width: 900px;
+}
 .finale__lines {
   position: relative; z-index: 2; margin-top: 46vh;
   display: flex; flex-direction: column; gap: .35em; padding: 20px;

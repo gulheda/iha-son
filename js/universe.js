@@ -49,7 +49,6 @@
     letterDone: $("#letterDone"),
     finale:     $("#finale"),
     finalePhoto:$("#finalePhoto"),
-    finaleLines:$("#finaleLines"),
     wishWrap:   $("#wishWrap"),
     wishBtn:    $("#wishBtn"),
     wishForm:   $("#wishForm"),
@@ -814,16 +813,14 @@
     probe.onerror = () => { el.finalePhoto.style.display = "none"; };
     probe.src = CONFIG.sunPhoto;
 
-    // reveal the rose→sun lines one by one
-    el.finaleLines.innerHTML = "";
-    CONFIG.finaleLines.forEach((t) => {
-      const p = document.createElement("p"); p.textContent = t; el.finaleLines.appendChild(p);
-    });
-    const paras = $$("p", el.finaleLines);
-    const step = prefersReduced ? 900 : 2600;
-    paras.forEach((p, i) => setTimeout(() => p.classList.add("show"), 1400 + i*step));
-    // then the wish
-    setTimeout(() => { el.wishWrap.hidden = false; }, 1400 + paras.length*step + 400);
+    // the birthday message (your words) fades in under the photo
+    setTimeout(() => {
+      el.birthday.hidden = false;
+      requestAnimationFrame(() => el.birthday.classList.add("show"));
+    }, prefersReduced ? 500 : 1600);
+    // then the wish invitation + the camera button
+    setTimeout(() => { el.wishWrap.hidden = false; el.finaleCamBtn.hidden = false; },
+               prefersReduced ? 1200 : 3600);
   }
 
   // wish → becomes a star
@@ -837,12 +834,8 @@
     el.wishForm.hidden = true;
     launchWishStar();
     Sound && Sound.chime();
-    setTimeout(() => {
-      el.birthday.hidden = false;
-      requestAnimationFrame(() => el.birthday.classList.add("show"));
-      confettiBurst();
-    }, 900);
-    setTimeout(showStarmap, 8000);   // calm astronomical closer
+    confettiBurst();
+    setTimeout(showStarmap, 1800);   // straight to the star map
   }
 
   /* ==================================================== STAR MAP (closer) */
